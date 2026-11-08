@@ -195,7 +195,7 @@ public class PingView extends PingData {
 						}
 					}
 
-					this.pos = ent.getPosition(ctx.tickDelta).add(0, ent.getBoundingBox().getYsize(), 0);
+					this.pos = ent.getPosition(ctx.tickDelta).add(0, ent.getBoundingBox().getYsize() + 0.45, 0);
 				}
 			} else if (this.age > 40 && this.targetPlayerInfo == null) {
 				this.entityDead = true;

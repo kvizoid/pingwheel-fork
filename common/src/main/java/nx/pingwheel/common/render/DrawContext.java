@@ -77,38 +77,42 @@ public class DrawContext {
 
 	public void renderInlinePing(Component leftText, Component rightText, PlayerInfo player, ItemStack itemStack, boolean drawItemIcon, int pingColor, int leftColor, int rightColor) {
 		boolean isItem = (itemStack != null && drawItemIcon);
-		int iconHalf = isItem ? 9 : 4;
-		int padY = isItem ? 10 : 7;
+		int iconHalf = isItem ? 8 : 3;
+		int iconWidth = isItem ? 16 : 6;
+		int padY = isItem ? 9 : 6;
+		int gap = 4;
 
 		int extraLeft = player != null ? 10 : 0;
 		int leftWidth = Game.font.width(leftText) + extraLeft;
 		int rightWidth = rightText != null ? Game.font.width(rightText) : 0;
 
-		// Symmetrically center the entire pill around x = 0 so the diamond is in the dead center
-		int halfWidth = Math.max(leftWidth, rightWidth) + iconHalf + 6;
+		int contentWidth = leftWidth + gap + iconWidth + (rightText != null ? (gap + rightWidth) : 0);
+		int halfWidth = (contentWidth / 2) + 4;
 
 		guiGraphics.fill(-halfWidth, -padY, halfWidth, padY, SHADOW_BLACK);
 
-		// Center left text in left wing [-halfWidth, -iconHalf - 2]
-		int leftAreaWidth = halfWidth - iconHalf - 2;
-		int leftStartX = -halfWidth + (leftAreaWidth - leftWidth) / 2;
+		int startX = -contentWidth / 2;
 		float textY = -3.5f;
 
-		guiGraphics.text(Game.font, leftText, leftStartX + extraLeft, (int)textY, leftColor, false);
+		// 1. Left text (Distance)
+		guiGraphics.text(Game.font, leftText, startX + extraLeft, (int)textY, leftColor, false);
 		if (player != null) {
 			matrices.pushMatrix();
-			matrices.translate(leftStartX, textY + 0.5f);
+			matrices.translate(startX, textY + 0.5f);
 			renderPlayerHead(player);
 			matrices.popMatrix();
 		}
 
-		// Ping icon / diamond in the exact center (0, 0)
+		// 2. Icon (Diamond) placed tightly between left and right text
+		int iconCenterX = startX + leftWidth + gap + iconHalf;
+		matrices.pushMatrix();
+		matrices.translate(iconCenterX, 0);
 		renderPing(itemStack, drawItemIcon, pingColor);
+		matrices.popMatrix();
 
-		// Center right text in right wing [iconHalf + 2, halfWidth]
+		// 3. Right text (Coordinates)
 		if (rightText != null) {
-			int rightAreaWidth = halfWidth - iconHalf - 2;
-			int rightStartX = iconHalf + 2 + (rightAreaWidth - rightWidth) / 2;
+			int rightStartX = startX + leftWidth + gap + iconWidth + gap;
 			guiGraphics.text(Game.font, rightText, rightStartX, (int)textY, rightColor, false);
 		}
 	}
