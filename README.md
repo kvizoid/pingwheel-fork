@@ -1,49 +1,94 @@
-<p align="center" style="text-align: center">
-  <a href="https://github.com/LukenSkyne/Minecraft-Ping-Wheel">
-    <img alt="Ping Wheel Logo" src=".github/icon.png" width="128" height="128" />
-  </a>
-</p>
+# 🎯 Ping Wheel Fork (Fabric 26.3 / Java 25)
 
-<h1 align="center">Ping Wheel</h1>
-<h3 align="center">ease communication with your friends by pinging locations</h3>
-<br>
+[![Minecraft](https://img.shields.io/badge/Minecraft-26.3-blue.svg)](https://minecraft.net/)
+[![Fabric](https://img.shields.io/badge/Fabric-0.161.0+-lightgrey.svg)](https://fabricmc.net/)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/badge/Release-v1.1.1-brightgreen.svg)](https://github.com/kvizoid/pingwheel-fork/releases)
 
-<div align="center">
+Расширенный форк мода **Ping Wheel** для Minecraft Fabric (Java 25), созданный для комфортной совместной игры с друзьями без необходимости ставить серверные моды или плагины.
 
-<a href="#">![NeoForge](https://luken.cc/badges/neoforge)</a>
-<a href="#">![Forge](https://luken.cc/badges/forge)</a>
-<a href="#">![Fabric](https://luken.cc/badges/fabric)</a>  
-<a href="https://www.curseforge.com/minecraft/mc-mods/ping-wheel">![Curseforge](https://luken.cc/badges/curseforge/734339)</a>
-<a href="https://modrinth.com/mod/ping-wheel">![Modrinth](https://luken.cc/badges/modrinth/QQXAdCzh)</a>  
-<a href="#">![Environment](https://luken.cc/badges/environment)</a>
+---
 
-</div>
+## ✨ Особенности форка
 
-## About
+- 🌐 **Глобальный WebSocket Relay**:
+  - Метки видны всем друзьям даже на публичных серверах, ванильных ванилах и мини-играх, где серверный мод Ping Wheel не установлен.
+  - Автоматическая изоляция в одиночном мире (в синглплеере релей засыпает и не транслирует метки наружу).
 
-Modern co-op games often allow players to communicate via "pings" to mark in-game locations.  
-This simple mod provides such pinging mechanism for the fabric and forge mod loaders.
+- 📍 **Одновременный мульти-пинг (Multi-Ping)**:
+  - Каждый игрок может держать активными до 10 меток одновременно (настраивается в меню, по умолчанию 5).
+  - При превышении лимита старейшая метка плавно заменяется новой.
+  - Повторное нажатие пинга при прицеливании на свою метку удаляет её.
 
-Default keybind is "Mouse5" aka "Forward" to ping. Hold "Tab" (Player List) to see player names on pings.  
-The settings can be changed via `/pingwheel config` or [Mod Menu](https://github.com/TerraformersMC/ModMenu).  
-Read the [Wiki](https://github.com/LukenSkyne/Minecraft-Ping-Wheel/wiki) for additional information.
+- 📋 **Копирование координат по ПКМ (Right-Click Coords Copy)**:
+  - При наведении прицела на любую метку координаты подсвечиваются и появляется подсказка `[ПКМ]`.
+  - Клик правой кнопкой мыши мгновенно копирует точные координаты блока `X Y Z` в буфер обмена с подтверждением над хотбаром.
 
-If you are looking to use the mod on Bukkit servers, you can install our [official Plugin](https://github.com/RXJpaw/Minecraft-Ping-Wheel-Plugin/).
+- 👤 **Пинг себя (Self-Ping)**:
+  - Быстрый жест: **зажатый Shift (присед) + взгляд вниз** (угол > 50°).
+  - Либо отдельная горячая клавиша в настройках управления.
+  - Метка прикрепляется к вашей модельке и перемещается вместе с вами, передавая друзьям текущее здоровье и точную позицию.
 
-## Gallery
+- 👾 **Информативный Entity HUD**:
+  - Отображение 2D/3D головы существа или скина игрока.
+  - Плавный RGB-градиент здоровья (зеленый -> желтый -> красный) в зависимости от процента HP.
+  - Отображение дополнительных золотых сердец (поглощение / Absorption).
 
-The following screenshot shows two pings in different distances with according scale.
+- 📏 **Умный LOD дистанции (200 блоков)**:
+  - Вблизи (< 200 м): полный детальный бейдж с точными координатами `[X Y Z]`, головой сущности, здоровьем и именем.
+  - Вдали (> 200 м): минималистичная аккуратная стрелка с расстоянием, не загромождающая обзор.
 
-<img src=".github/in-game-screenshot.png" alt="In-Game">
+- 🔄 **Автообновления (Auto-Updater)**:
+  - Автоматическая тихая проверка при запуске игры через зеркала GitHub и собственный шлюз.
+  - Загрузка свежего `.jar` прямо в папку `mods/` с заменой устаревшего файла.
+  - Кнопка ручной проверки обновлений в меню настроек.
 
-When enabled, this feature replaces the ping icon with the respective item texture (or model).
+- ⚙️ **Внутриигровой экран синхронизации серверов (`ServerSyncScreen`)**:
+  - Связывание разных IP и доменов (например, прямого IP и прокси-домена) в один общий канал релея в один клик.
 
-<img src=".github/item-icon-showcase.png" alt="Item-Icons">
+---
 
-## Dependencies
+## 🎮 Управление по умолчанию
 
-<p>
-  <a href="https://github.com/FabricMC/fabric">
-    <img alt="Fabric API" height="56" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/requires/fabric-api_vector.svg">
-  </a>
-</p>
+| Действие | Клавиша / Жест |
+|---|---|
+| Поставить / убрать метку | **Mouse 5 (Вперед)** или колесико мыши |
+| Скопировать координаты метки | **ПКМ** при наведении прицела на метку |
+| Пинг себя (Self-Ping) | **Shift + Взгляд вниз** или бинд в Управлении |
+| Открыть колесо пингов | Удерживать клавишу пинга |
+| Посмотреть ники авторов меток | Удерживать клавишу **Tab** (список игроков) |
+| Меню настроек мода | `/pingwheel config` или через **Mod Menu** |
+
+---
+
+## 📦 Установка
+
+1. Убедитесь, что у вас установлены:
+   - **Minecraft 26.3**
+   - **Fabric Loader** (0.19.5+)
+   - **Fabric API**
+   - **Java 25**
+2. Скачайте последний `.jar` файл из раздела [Releases](https://github.com/kvizoid/pingwheel-fork/releases).
+3. Поместите `.jar` в папку `.minecraft/mods/` (или в папку модов вашего инстанса Prism Launcher / Modrinth).
+4. Запустите игру.
+
+---
+
+## 🛠️ Сборка из исходников
+
+```bash
+git clone https://github.com/kvizoid/pingwheel-fork.git
+cd pingwheel-fork
+./gradlew build
+```
+
+Готовый файл мода появится в `fabric/build/libs/Ping-Wheel-1.1.1-fabric-26.3.jar`.
+
+---
+
+## 📄 Лицензия и благодарности (Credits & License)
+
+- Мод распространяется под свободной лицензией **MIT License** (см. файл [LICENSE](LICENSE)).
+- Оригинальный автор базового мода Ping Wheel: **[LukenSkyne (Luken)](https://github.com/LukenSkyne/Minecraft-Ping-Wheel)** и соавтор **RXJpaw**.
+- Данный проект является независимым форком сообщества, развивающим функционал сетевого взаимодействия, удобства интерфейса и расширенных индикаторов.

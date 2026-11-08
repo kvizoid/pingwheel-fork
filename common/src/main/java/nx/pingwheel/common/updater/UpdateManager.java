@@ -132,18 +132,19 @@ public class UpdateManager {
 			} else {
 				modsDir = new File("mods");
 				if (!modsDir.exists()) modsDir.mkdirs();
-				currentJar = new File(modsDir, "Ping-Wheel-1.1.1-fabric-26.3.jar");
+				currentJar = new File(modsDir, "Ping-Wheel-" + versionName + "-fabric-26.3.jar");
 			}
 
 			File tempFile = new File(modsDir, "Ping-Wheel-update.tmp");
-			File targetFile = currentJar.isFile() ? currentJar : new File(modsDir, "Ping-Wheel-1.1.1-fabric-26.3.jar");
+			File targetFile = currentJar.isFile() ? currentJar : new File(modsDir, "Ping-Wheel-" + versionName + "-fabric-26.3.jar");
 
 			java.io.InputStream stream = null;
 			String[] urls = {
 				downloadUrl,
 				downloadUrl.replace("://bubuntu.tech", "://up.bubuntu.tech"),
-				"https://github.com/kvizoid/pingwheel-fork/releases/latest/download/Ping-Wheel-1.1.1-fabric-26.3.jar",
-				"https://bubuntu.tech/pingwheel/Ping-Wheel-1.1.1-fabric-26.3.jar"
+				"https://bubuntu.tech/pingwheel/Ping-Wheel-" + versionName + "-fabric-26.3.jar",
+				"https://github.com/kvizoid/pingwheel-fork/releases/download/v" + versionName + "/Ping-Wheel-" + versionName + "-fabric-26.3.jar",
+				"https://github.com/kvizoid/pingwheel-fork/releases/latest/download/Ping-Wheel-" + versionName + "-fabric-26.3.jar"
 			};
 			for (String u : urls) {
 				try {
