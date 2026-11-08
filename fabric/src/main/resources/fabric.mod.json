@@ -1,0 +1,45 @@
+{
+	"schemaVersion": 1,
+	"id": "pingwheel",
+	"version": "1.1.1",
+	"name": "Ping Wheel (Fork)",
+	"description": "Mark locations similar to the ping mechanism found in modern co-op multiplayer games. Enhanced fork with Relay, Multi-Ping, Entity HUD & Auto-Updater.",
+	"authors": [
+		"Luken",
+		"kvz"
+	],
+	"contributors": [
+		"RXJpaw",
+		"drnight"
+	],
+	"contact": {
+		"homepage": "https://bubuntu.tech/pingwheel/",
+		"sources": "https://bubuntu.tech/pingwheel/",
+		"issues": "https://bubuntu.tech/pingwheel/"
+	},
+	"license": "MIT",
+	"icon": "icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"client": [
+			"nx.pingwheel.fabric.FabricClient"
+		],
+		"main": [
+			"nx.pingwheel.fabric.FabricMain"
+		],
+		"modmenu": [
+			"nx.pingwheel.fabric.integration.ModMenuIntegration"
+		],
+		"voicechat": [
+			"nx.pingwheel.common.integration.VoiceChatIntegration"
+		]
+	},
+	"mixins": [
+		"pingwheel.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"fabric-api": "*",
+		"minecraft": "26.3"
+	}
+}

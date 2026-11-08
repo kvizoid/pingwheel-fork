@@ -1,0 +1,162 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+}
+
+base {
+    archivesName = archive_name
+    version = mod_version
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+repositories {
+    mavenCentral()
+    // https://docs.gradle.org/current/userguide/declaring_repositories.html#declaring_content_exclusively_found_in_one_repository
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Sponge"
+                url = "https://repo.spongepowered.org/repository/maven-public"
+            }
+        }
+        filter { includeGroupAndSubgroups("org.spongepowered") }
+    }
+    exclusiveContent {
+        forRepositories(
+                maven {
+                    name = "ParchmentMC"
+                    url = "https://maven.parchmentmc.org/"
+                },
+                maven {
+                    name = "NeoForge"
+                    url = "https://maven.neoforged.net/releases"
+                }
+        )
+        filter { includeGroup("org.parchmentmc.data") }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name "Cursemaven"
+                url "https://cursemaven.com"
+            }
+        }
+        filter {
+            includeGroup "curse.maven"
+        }
+    }
+    maven {
+        name = "BlameJared"
+        url = "https://maven.blamejared.com"
+    }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
+        name = "Simple Voice Chat"
+        url = "https://maven.maxhenkel.de/repository/public"
+    }
+}
+
+dependencies {
+    implementation "org.jetbrains:annotations:24.1.0"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:1.18.44"
+    annotationProcessor "org.projectlombok:lombok:1.18.44"
+
+    // Distant Horizons
+    // https://modrinth.com/mod/distanthorizonsapi
+    compileOnly "maven.modrinth:DistantHorizonsApi:${distanthorizons_api_version}"
+
+    // Simple Voice Chat
+    // https://modrepo.de/minecraft/voicechat/api/getting_started
+    compileOnly "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
+
+    // FTB Teams
+    // https://www.curseforge.com/minecraft/mc-mods/ftb-teams-forge
+    compileOnly "curse.maven:ftbteams-404468:${ftbteams_version}"
+}
+
+// Declare capabilities on the outgoing configurations.
+// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
+["apiElements", "runtimeElements", "sourcesElements", "javadocElements"].each { variant ->
+    configurations."$variant".outgoing {
+        capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
+        capability("$group:$mod_id:$version")
+    }
+    publishing.publications.configureEach {
+        suppressPomMetadataWarningsFor(variant)
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                "Specification-Title"   : mod_name,
+                "Specification-Vendor"  : mod_author,
+                "Specification-Version" : project.jar.archiveVersion,
+                "Implementation-Title"  : project.name,
+                "Implementation-Version": project.jar.archiveVersion,
+                "Implementation-Vendor" : mod_author,
+                "Built-On-Minecraft"    : minecraft_version,
+                "MixinConfigs"          : "${mod_id}.mixins.json"
+        ])
+    }
+}
+def expandProps = [
+        "mod_author"             : mod_author,
+        "mod_name"               : mod_name,
+        "mod_id"                 : mod_id,
+        "archive_name"           : archive_name,
+        "contributors"           : contributors,
+        "license"                : license,
+        "description"            : description,
+        "link_home"              : link_home,
+        "link_src"               : link_src,
+        "link_issues"            : link_issues,
+
+        "version"                : version,
+        "java_version"           : java_version,
+        "minecraft_version"      : minecraft_version,
+
+        "fabric_version"         : fabric_version,
+        "fabric_loader_version"  : fabric_loader_version,
+        "fabric_compatible_range": fabric_compatible_range,
+
+        "forge_version"          : forge_version,
+        "forge_loader_version"   : forge_loader_version,
+        "forge_compatible_range" : forge_compatible_range,
+
+        "neoforge_version"          : neoforge_version,
+        "neoforge_loader_version"   : neoforge_loader_version,
+        "neoforge_compatible_range" : neoforge_compatible_range,
+]
+
+processResources {
+
+    filesMatching(["pack.mcmeta", "fabric.mod.json", "META-INF/mods.toml", "META-INF/neoforge.mods.toml", "*.mixins.json"]) {
+        expand expandProps
+    }
+    inputs.properties(expandProps)
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication) {
+            artifactId base.archivesName.get()
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url System.getenv("local_maven_url")
+        }
+    }
+}

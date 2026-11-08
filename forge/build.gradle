@@ -1,0 +1,49 @@
+plugins {
+    id "idea"
+    id "multiloader-loader"
+    id "net.minecraftforge.gradle" version "[7.0.11,8.0)"
+}
+
+minecraft {
+    mappings channel: "official", version: minecraft_version
+
+    runs {
+        configureEach {
+            args "-mixin.config=${mod_id}.mixins.json"
+        }
+
+        client {
+            workingDir = file('runs/client')
+        }
+
+        server {
+            workingDir = file('runs/server')
+        }
+
+        data {
+            workingDir = file('runs/data')
+            args "--mod", mod_id, "--all", "--output", file("src/generated/resources/"), "--existing", file("src/main/resources/")
+        }
+    }
+}
+
+sourceSets.main.resources.srcDir "src/generated/resources"
+
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+}
+
+dependencies {
+    implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
+    annotationProcessor "org.spongepowered:mixin:0.8.7:processor"
+}
+
+jar {
+    manifest {
+        attributes["MixinConfigs"] = "${mod_id}.mixins.json"
+    }
+
+    archiveClassifier = "${project.name}-${minecraft_version}"
+}
