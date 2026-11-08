@@ -27,6 +27,10 @@ public class DrawContext {
 		return matrices;
 	}
 
+	public GuiGraphicsExtractor getGuiGraphics() {
+		return guiGraphics;
+	}
+
 	public DrawContext(GuiGraphicsExtractor guiGraphics) {
 		this.guiGraphics = guiGraphics;
 		this.matrices = guiGraphics.pose();
@@ -162,5 +166,54 @@ public class DrawContext {
 
 	public void renderArrowIcon(int color) {
 		renderTexture(ARROW_TEXTURE_ID, 10, color);
+	}
+
+	public void renderLine(float x1, float y1, float x2, float y2, float thickness, int color) {
+		float dx = x2 - x1;
+		float dy = y2 - y1;
+		float length = (float)Math.hypot(dx, dy);
+		if (length < 1f) {
+			return;
+		}
+		float angle = (float)Math.atan2(dy, dx);
+		matrices.pushMatrix();
+		matrices.translate(x1, y1);
+		MathUtils.rotateZ(matrices, angle);
+		int halfThick = Math.max(1, (int)(thickness / 2f + 0.5f));
+		guiGraphics.fill(0, -halfThick, (int)length, halfThick, color);
+		matrices.popMatrix();
+	}
+
+	public void renderDashedLine(float x1, float y1, float x2, float y2, float thickness, float dashLen, float gapLen, int color) {
+		float dx = x2 - x1;
+		float dy = y2 - y1;
+		float length = (float)Math.hypot(dx, dy);
+		if (length < 2f) {
+			return;
+		}
+		float angle = (float)Math.atan2(dy, dx);
+		matrices.pushMatrix();
+		matrices.translate(x1, y1);
+		MathUtils.rotateZ(matrices, angle);
+
+		boolean isHairline = thickness <= 1.0f;
+		int halfThick = Math.max(1, (int)(thickness / 2f + 0.5f));
+
+		float cur = 0f;
+		int maxDashes = 250;
+		int count = 0;
+		while (cur < length && count++ < maxDashes) {
+			float next = Math.min(cur + dashLen, length);
+			int start = (int)cur;
+			int end = Math.max(start + 1, (int)next);
+			if (isHairline) {
+				guiGraphics.fill(start, 0, end, 1, color);
+			} else {
+				guiGraphics.fill(start, -halfThick, end, halfThick, color);
+			}
+			cur += dashLen + gapLen;
+		}
+
+		matrices.popMatrix();
 	}
 }

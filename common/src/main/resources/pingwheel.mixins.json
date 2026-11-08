@@ -5,7 +5,10 @@
 	"compatibilityLevel": "JAVA_17",
 	"client": [
 		"GameRendererMixin",
-		"GuiMixin"
+		"GuiMixin",
+		"MouseHandlerMixin",
+		"MultiPlayerGameModeMixin",
+		"AbstractContainerScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

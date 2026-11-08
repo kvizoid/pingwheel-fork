@@ -23,7 +23,7 @@ public class RelayClient implements WebSocket.Listener {
 
 	public static final RelayClient INSTANCE = new RelayClient();
 
-	private static final String DEFAULT_RELAY_URL = "ws://89.250.170.112:8899";
+	private static final String DEFAULT_RELAY_URL = "ws://relay.bubuntu.tech:8899";
 
 	public static String getRelayUrl() {
 		try {

@@ -182,10 +182,44 @@ public class PingManager {
 			return;
 		}
 
-		int x = (int)Math.floor(ping.getPos().x);
-		int y = (int)Math.floor(ping.getPos().y);
-		int z = (int)Math.floor(ping.getPos().z);
-		String coordsStr = x + " " + y + " " + z;
+		int bx = (int)Math.floor(ping.getPos().x);
+		int by = (int)Math.floor(ping.getPos().y);
+		int bz = (int)Math.floor(ping.getPos().z);
+
+		String coordsStr;
+		Component message;
+
+		if (ping.isAltDimension()) {
+			if (GameContext.isOverworld()) {
+				int netherX = (int)Math.floor(ping.getPos().x / 8.0);
+				int netherZ = (int)Math.floor(ping.getPos().z / 8.0);
+				coordsStr = netherX + " " + by + " " + netherZ;
+				message = Component.literal("§a").append(
+					Component.translatable("pingwheel.coords_copied_dim",
+						Component.translatable("pingwheel.dim_nether"),
+						"§6" + coordsStr)
+				);
+			} else if (GameContext.isNether()) {
+				int overX = (int)Math.floor(ping.getPos().x * 8.0);
+				int overZ = (int)Math.floor(ping.getPos().z * 8.0);
+				coordsStr = overX + " " + by + " " + overZ;
+				message = Component.literal("§a").append(
+					Component.translatable("pingwheel.coords_copied_dim",
+						Component.translatable("pingwheel.dim_overworld"),
+						"§6" + coordsStr)
+				);
+			} else {
+				coordsStr = bx + " " + by + " " + bz;
+				message = Component.literal("§a").append(
+					Component.translatable("pingwheel.coords_copied", "§6" + coordsStr)
+				);
+			}
+		} else {
+			coordsStr = bx + " " + by + " " + bz;
+			message = Component.literal("§a").append(
+				Component.translatable("pingwheel.coords_copied", "§6" + coordsStr)
+			);
+		}
 
 		try {
 			Game.keyboardHandler.setClipboard(coordsStr);
@@ -194,9 +228,7 @@ public class PingManager {
 		}
 
 		if (Game.player != null) {
-			Game.player.sendOverlayMessage(
-				Component.literal("§a").append(Component.translatable("pingwheel.coords_copied", "§6" + coordsStr))
-			);
+			Game.player.sendOverlayMessage(message);
 		}
 
 		try {

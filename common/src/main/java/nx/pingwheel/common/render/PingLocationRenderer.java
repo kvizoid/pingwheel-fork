@@ -51,17 +51,40 @@ public class PingLocationRenderer {
 		final var author = ping.getPlayerInfo();
 		final var compactPlayerInfo = ((isDetailed || isHovered) && CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.COMPACT) ? author : null;
 
+		final int OVERWORLD_COLOR = 0xFFA8E7FF;
+		final int NETHER_COLOR = 0xFFFFA8A8;
+
 		if (showInlineCoords) {
 			Component leftText = LanguageUtils.UNIT_METERS.get("%,.1f".formatted(ping.getDistance()));
 			int bx = (int)Math.floor(ping.getPos().x);
 			int by = (int)Math.floor(ping.getPos().y);
 			int bz = (int)Math.floor(ping.getPos().z);
 
-			var rightText = Component.literal(bx + " " + by + " " + bz);
-			int coordsColor = isHovered ? 0xFFFFFFFF : 0xFF94A3B8;
-			if (isHovered) {
-				rightText = rightText.append(Component.literal(" ").append(Component.translatable("pingwheel.rmb_badge").withStyle(ChatFormatting.GOLD)));
+			boolean isNetherCoords = false;
+			int targetX = bx;
+			int targetY = by;
+			int targetZ = bz;
+
+			if (nx.pingwheel.common.core.GameContext.isNether()) {
+				if (ping.isAltDimension()) {
+					targetX = (int)Math.floor(ping.getPos().x * 8.0);
+					targetZ = (int)Math.floor(ping.getPos().z * 8.0);
+					isNetherCoords = false;
+				} else {
+					isNetherCoords = true;
+				}
+			} else {
+				if (ping.isAltDimension()) {
+					targetX = (int)Math.floor(ping.getPos().x / 8.0);
+					targetZ = (int)Math.floor(ping.getPos().z / 8.0);
+					isNetherCoords = true;
+				} else {
+					isNetherCoords = false;
+				}
 			}
+
+			var rightText = Component.literal(targetX + " " + targetY + " " + targetZ);
+			int coordsColor = isNetherCoords ? NETHER_COLOR : OVERWORLD_COLOR;
 
 			ctx.renderInlinePing(leftText, rightText, compactPlayerInfo, ping.getItemStack(), CLIENT_CONFIG.isItemIconVisible(), pingColor, distanceColor, coordsColor);
 		} else {
@@ -75,12 +98,28 @@ public class PingLocationRenderer {
 			ctx.renderPing(ping.getItemStack(), isDetailed && CLIENT_CONFIG.isItemIconVisible(), pingColor);
 		}
 
-		if (isDetailed) {
+		if (isDetailed || isHovered) {
 			float entityYOffset = showInlineCoords ? 1.6f : 1.75f;
 			if (ping.getTargetPlayerInfo() != null && ping.getTargetEntityName() != null) {
 				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, ping.getTargetPlayerInfo(), null, WHITE);
 			} else if (ping.getTargetEntityName() != null) {
 				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, null, ping.getTargetEntityIcon(), WHITE);
+			} else if (ping.getPos() != null) {
+				var bPos = net.minecraft.core.BlockPos.containing(ping.getPos().x, ping.getPos().y, ping.getPos().z);
+				var snapshot = nx.pingwheel.common.core.ContainerMemoryManager.get(bPos);
+				if (snapshot != null) {
+					ctx.renderLabel(snapshot.formatSummary(), entityYOffset, null, WHITE);
+				} else if (Game.level != null) {
+					var state = Game.level.getBlockState(bPos);
+					var blk = state.getBlock();
+					if (blk instanceof net.minecraft.world.level.block.ChestBlock
+						|| blk instanceof net.minecraft.world.level.block.BarrelBlock
+						|| blk instanceof net.minecraft.world.level.block.ShulkerBoxBlock) {
+						var unopenedText = Component.literal("📦 ").withStyle(ChatFormatting.GOLD)
+							.append(Component.translatable("pingwheel.container_unopened").withStyle(ChatFormatting.GRAY));
+						ctx.renderLabel(unopenedText, entityYOffset, null, WHITE);
+					}
+				}
 			} else {
 				final var isPlayerListHeld = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.HOLD && Game.options.keyPlayerList.isDown();
 				final var showVerbosePlayerInfo = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.ALWAYS || isPlayerListHeld;

@@ -18,6 +18,14 @@ public class GameContext {
 		return dimension;
 	}
 
+	public static boolean isNether() {
+		return Game != null && Game.level != null && Game.level.dimension() == net.minecraft.world.level.Level.NETHER;
+	}
+
+	public static boolean isOverworld() {
+		return Game != null && Game.level != null && Game.level.dimension() == net.minecraft.world.level.Level.OVERWORLD;
+	}
+
 	public static void updateDimension() {
 		if (Game.level == null || lastWorld == Game.level) {
 			return;

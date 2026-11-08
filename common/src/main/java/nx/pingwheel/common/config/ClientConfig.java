@@ -24,8 +24,9 @@ public class ClientConfig implements IConfig {
 	String channel = "";
 	Map<String, String> serverChannels = new HashMap<>();
 	boolean crossServerSync = false;
-	List<String> syncedServers = new ArrayList<>(List.of("135.125.188.210:30126", "play.k1nggl1nt.ru"));
+	List<String> syncedServers = new ArrayList<>(List.of("play.k1nggl1nt.ru"));
 	boolean coordinatesVisible = true;
+	boolean rulerVisible = true;
 	int detailDistance = 200;
 	int maxSimultaneousPings = 5;
 
@@ -78,6 +79,9 @@ public class ClientConfig implements IConfig {
 
 	public boolean isCoordinatesVisible() { return coordinatesVisible; }
 	public void setCoordinatesVisible(boolean coordinatesVisible) { this.coordinatesVisible = coordinatesVisible; }
+
+	public boolean isRulerVisible() { return rulerVisible; }
+	public void setRulerVisible(boolean rulerVisible) { this.rulerVisible = rulerVisible; }
 
 	public int getDetailDistance() { return detailDistance; }
 	public void setDetailDistance(int detailDistance) { this.detailDistance = detailDistance; }
@@ -158,7 +162,7 @@ public class ClientConfig implements IConfig {
 		}
 
 		if (syncedServers == null) {
-			syncedServers = new ArrayList<>(List.of("135.125.188.210:30126", "play.k1nggl1nt.ru"));
+			syncedServers = new ArrayList<>(List.of("play.k1nggl1nt.ru"));
 		}
 
 		if (channel == null) {

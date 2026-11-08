@@ -79,6 +79,8 @@ public class SettingsScreen extends OptionsSubScreen {
 
 		this.list.addSmall(getDetailDistanceOption(), getMaxSimultaneousPingsOption());
 
+		this.list.addSmall(getRulerVisibleOption(), null);
+
 		var syncServersBtn = net.minecraft.client.gui.components.Button.builder(
 			Component.translatable("settings.pingwheel.server_sync"),
 			btn -> {
@@ -318,6 +320,14 @@ public class SettingsScreen extends OptionsSubScreen {
 			LanguageUtils.settings("coordinates_visible").getKey(),
 			config::isCoordinatesVisible,
 			config::setCoordinatesVisible
+		);
+	}
+
+	private OptionInstance<Boolean> getRulerVisibleOption() {
+		return OptionUtils.ofBool(
+			LanguageUtils.settings("ruler_visible").getKey(),
+			config::isRulerVisible,
+			config::setRulerVisible
 		);
 	}
 

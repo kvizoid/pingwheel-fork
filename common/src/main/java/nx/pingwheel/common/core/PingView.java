@@ -45,6 +45,19 @@ public class PingView extends PingData {
 	private ItemStack targetEntityIcon;
 	private boolean entityDead;
 	private boolean hostile;
+	private boolean altDimension = false;
+
+	public boolean isAltDimension() {
+		return altDimension;
+	}
+
+	public void toggleAltDimension() {
+		this.altDimension = !this.altDimension;
+	}
+
+	public boolean isRuler() {
+		return sequence < 0;
+	}
 
 	public PlayerInfo getPlayerInfo() {
 		return playerInfo;
@@ -245,19 +258,21 @@ public class PingView extends PingData {
 			return;
 		}
 
+		float pitch = isRuler() ? 1.5f : 1.0f;
 		Game.getSoundManager().play(
 			new DirectionalSoundInstance(
 				PING_SOUND_EVENT,
 				SoundSource.MASTER,
 				CLIENT_CONFIG.getPingVolume() / 100f,
-				1f,
+				pitch,
 				this.pos
 			)
 		);
 	}
 
 	public boolean isExpired() {
-		return (this.age > CLIENT_CONFIG.getPingDuration() * TPS && CLIENT_CONFIG.getPingDuration() < MAX_PING_DURATION) || this.entityDead;
+		int duration = isRuler() ? Math.max(60, CLIENT_CONFIG.getPingDuration() * 5) : CLIENT_CONFIG.getPingDuration();
+		return (this.age > duration * TPS && CLIENT_CONFIG.getPingDuration() < MAX_PING_DURATION) || this.entityDead;
 	}
 
 	public boolean isRemovable() {

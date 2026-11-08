@@ -21,6 +21,7 @@ public class PingController {
 
 	private static boolean pingQueued = false;
 	private static boolean selfPingQueued = false;
+	private static boolean queuedShift = false;
 	private static int pingSequence = 0;
 	private static int lastPing = 0;
 
@@ -31,10 +32,13 @@ public class PingController {
 	public static void revokePingAction() {
 		pingQueued = false;
 		selfPingQueued = false;
+		queuedShift = false;
 	}
 
 	public static void queuePingAction() {
 		pingQueued = true;
+		var camera = Game != null ? Game.getCameraEntity() : null;
+		queuedShift = (camera != null && camera.isCrouching()) || (Game != null && Game.options != null && Game.options.keyShift.isDown());
 	}
 
 	public static void queueSelfPingAction() {
@@ -70,6 +74,12 @@ public class PingController {
 			return;
 		}
 
+		boolean isRuler = queuedShift || cameraEntity.isCrouching() || (Game.options != null && Game.options.keyShift.isDown());
+		int seq = Math.max(1, Math.abs(pingSequence));
+		if (isRuler) {
+			seq = -seq;
+		}
+
 		var cameraDirection = cameraEntity.getViewVector(tickDelta);
 		var hitResult = Raycast.traceDirectional(
 			cameraDirection,
@@ -79,8 +89,9 @@ public class PingController {
 
 		if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
 			if (ModContext.HasDistantHorizons) {
+				final int distantSeq = seq;
 				Raycast.traceDistantAsync(cameraDirection, tickDelta, (distantHitResult) -> {
-					IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), distantHitResult.getLocation(), null, pingSequence, GameContext.getDimension()));
+					IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), distantHitResult.getLocation(), null, distantSeq, GameContext.getDimension()));
 				});
 			}
 
@@ -93,7 +104,7 @@ public class PingController {
 			uuid = ((EntityHitResult)hitResult).getEntity().getUUID();
 		}
 
-		IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), hitResult.getLocation(), uuid, pingSequence, GameContext.getDimension()));
+		IPlatformNetworkService.INSTANCE.sendToServer(new PingLocationC2SPacket(CLIENT_CONFIG.getChannel(), hitResult.getLocation(), uuid, seq, GameContext.getDimension()));
 	}
 
 	private static void doSelfPing(net.minecraft.world.entity.Entity cameraEntity) {

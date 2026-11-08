@@ -75,4 +75,67 @@ public class MathUtils {
 
 		return new Vec2(rightBottom.x, (float)y + leftTop.y);
 	}
+
+	private static final int CLIP_INSIDE = 0;
+	private static final int CLIP_LEFT = 1;
+	private static final int CLIP_RIGHT = 2;
+	private static final int CLIP_BOTTOM = 4;
+	private static final int CLIP_TOP = 8;
+
+	private static int computeOutCode(float x, float y, float minX, float minY, float maxX, float maxY) {
+		int code = CLIP_INSIDE;
+		if (x < minX) code |= CLIP_LEFT;
+		else if (x > maxX) code |= CLIP_RIGHT;
+		if (y < minY) code |= CLIP_BOTTOM;
+		else if (y > maxY) code |= CLIP_TOP;
+		return code;
+	}
+
+	public static float[] clipLine(float x1, float y1, float x2, float y2, float minX, float minY, float maxX, float maxY) {
+		int code1 = computeOutCode(x1, y1, minX, minY, maxX, maxY);
+		int code2 = computeOutCode(x2, y2, minX, minY, maxX, maxY);
+		boolean accept = false;
+
+		int iterations = 0;
+		while (iterations++ < 16) {
+			if ((code1 | code2) == 0) {
+				accept = true;
+				break;
+			} else if ((code1 & code2) != 0) {
+				break;
+			} else {
+				float x = 0, y = 0;
+				int codeOut = (code1 != 0) ? code1 : code2;
+
+				if ((codeOut & CLIP_TOP) != 0) {
+					x = x1 + (x2 - x1) * (maxY - y1) / (y2 - y1);
+					y = maxY;
+				} else if ((codeOut & CLIP_BOTTOM) != 0) {
+					x = x1 + (x2 - x1) * (minY - y1) / (y2 - y1);
+					y = minY;
+				} else if ((codeOut & CLIP_RIGHT) != 0) {
+					y = y1 + (y2 - y1) * (maxX - x1) / (x2 - x1);
+					x = maxX;
+				} else if ((codeOut & CLIP_LEFT) != 0) {
+					y = y1 + (y2 - y1) * (minX - x1) / (x2 - x1);
+					x = minX;
+				}
+
+				if (codeOut == code1) {
+					x1 = x;
+					y1 = y;
+					code1 = computeOutCode(x1, y1, minX, minY, maxX, maxY);
+				} else {
+					x2 = x;
+					y2 = y;
+					code2 = computeOutCode(x2, y2, minX, minY, maxX, maxY);
+				}
+			}
+		}
+
+		if (accept) {
+			return new float[] { x1, y1, x2, y2 };
+		}
+		return null;
+	}
 }
