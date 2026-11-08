@@ -60,7 +60,7 @@ public class PingLocationRenderer {
 			var rightText = Component.literal(bx + " " + by + " " + bz);
 			int coordsColor = isHovered ? 0xFFFFFF55 : 0xFFFFD700;
 			if (isHovered) {
-				rightText = rightText.append(Component.literal(" [ПКМ]").withStyle(ChatFormatting.AQUA));
+				rightText = rightText.append(Component.translatable("pingwheel.rmb_badge").withStyle(ChatFormatting.AQUA));
 			}
 
 			ctx.renderInlinePing(leftText, rightText, compactPlayerInfo, ping.getItemStack(), CLIENT_CONFIG.isItemIconVisible(), pingColor, distanceColor, coordsColor);

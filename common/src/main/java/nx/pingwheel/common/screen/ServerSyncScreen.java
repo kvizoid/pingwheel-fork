@@ -22,7 +22,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 	private String inputDraft = "";
 
 	public ServerSyncScreen(Screen parent) {
-		super(parent, Game != null ? Game.options : null, Component.literal("Синхронизация серверов").withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD));
+		super(parent, Game != null ? Game.options : null, Component.translatable("settings.pingwheel.server_sync.title").withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD));
 		this.config = ClientConfig.HANDLER.getConfig();
 	}
 
@@ -30,36 +30,36 @@ public class ServerSyncScreen extends OptionsSubScreen {
 	protected void addOptions() {
 		// 1. Cross-Server Sync Mode Button
 		boolean isGlobal = config.isCrossServerSync();
-		String modeText = isGlobal
-			? "§aГлобальный (Все серверы на канале)"
-			: "§eПо списку (Только серверы из списка ниже)";
+		Component modeText = Component.translatable(isGlobal
+			? "settings.pingwheel.server_sync.mode.global"
+			: "settings.pingwheel.server_sync.mode.whitelist");
 
-		String tooltipText = isGlobal
-			? "Метки передаются между ЛЮБЫМИ серверами с одинаковым номером канала. В одиночной игре метки всегда отключены."
-			: "Метки передаются только если сервер отправителя или получателя добавлен в список ниже.";
+		Component tooltipText = Component.translatable(isGlobal
+			? "settings.pingwheel.server_sync.mode.global.tooltip"
+			: "settings.pingwheel.server_sync.mode.whitelist.tooltip");
 
 		var toggleBtn = Button.builder(
-			Component.literal("Режим: " + modeText),
+			Component.translatable("settings.pingwheel.server_sync.mode", modeText),
 			btn -> {
 				config.setCrossServerSync(!config.isCrossServerSync());
 				ClientConfig.HANDLER.save();
 				this.rebuildWidgets();
 			}
-		).tooltip(Tooltip.create(Component.literal(tooltipText))).width(310).build();
+		).tooltip(Tooltip.create(tooltipText)).width(310).build();
 
 		this.list.addBig(toggleBtn);
 
 		// 2. Add server section
-		this.list.addHeader(Component.literal("Добавить сервер в синхронизацию").withStyle(ChatFormatting.YELLOW));
+		this.list.addHeader(Component.translatable("settings.pingwheel.server_sync.add_header").withStyle(ChatFormatting.YELLOW));
 
-		this.serverInput = new EditBox(this.font, 0, 0, 205, 20, Component.literal("Адрес сервера"));
-		this.serverInput.setHint(Component.literal("play.example.com или IP:порт").withStyle(ChatFormatting.DARK_GRAY));
+		this.serverInput = new EditBox(this.font, 0, 0, 205, 20, Component.translatable("settings.pingwheel.server_sync.input_label"));
+		this.serverInput.setHint(Component.translatable("settings.pingwheel.server_sync.input_hint").withStyle(ChatFormatting.DARK_GRAY));
 		this.serverInput.setMaxLength(128);
 		this.serverInput.setValue(inputDraft);
 		this.serverInput.setResponder(text -> this.inputDraft = text);
 
 		var addBtn = Button.builder(
-			Component.literal("§a+ Добавить"),
+			Component.translatable("settings.pingwheel.server_sync.add_button"),
 			btn -> {
 				String text = this.serverInput.getValue().trim();
 				if (!text.isEmpty()) {
@@ -83,7 +83,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 
 			if (!alreadyInList) {
 				var addCurrentBtn = Button.builder(
-					Component.literal("§b+ Добавить текущий сервер: §f" + currentIp),
+					Component.translatable("settings.pingwheel.server_sync.add_current", currentIp),
 					btn -> {
 						config.getSyncedServers().add(currentIp);
 						ClientConfig.HANDLER.save();
@@ -96,11 +96,11 @@ public class ServerSyncScreen extends OptionsSubScreen {
 
 		// 4. List of synced servers
 		List<String> servers = config.getSyncedServers();
-		this.list.addHeader(Component.literal("Связанные серверы (" + servers.size() + ")").withStyle(ChatFormatting.AQUA));
+		this.list.addHeader(Component.translatable("settings.pingwheel.server_sync.linked_header", servers.size()).withStyle(ChatFormatting.AQUA));
 
 		if (servers.isEmpty()) {
 			var emptyBtn = Button.builder(
-				Component.literal("§7(Список пуст — добавьте адреса серверов выше)"),
+				Component.translatable("settings.pingwheel.server_sync.empty_list"),
 				btn -> {}
 			).width(310).build();
 			emptyBtn.active = false;
@@ -109,16 +109,19 @@ public class ServerSyncScreen extends OptionsSubScreen {
 			String curIp = currentIpOpt.orElse("");
 			for (String srv : new ArrayList<>(servers)) {
 				boolean isCurrent = !curIp.isEmpty() && srv.equalsIgnoreCase(curIp);
-				String display = "🌐 " + srv + (isCurrent ? " §a(текущий)" : "");
+				var display = Component.literal("🌐 " + srv);
+				if (isCurrent) {
+					display.append(Component.translatable("settings.pingwheel.server_sync.current_badge").withStyle(ChatFormatting.GREEN));
+				}
 
 				var infoBtn = Button.builder(
-					Component.literal(display),
+					display,
 					btn -> {}
 				).width(225).build();
 				infoBtn.active = false;
 
 				var delBtn = Button.builder(
-					Component.literal("§c✕ Удалить"),
+					Component.translatable("settings.pingwheel.server_sync.delete_button"),
 					btn -> {
 						config.getSyncedServers().remove(srv);
 						ClientConfig.HANDLER.save();

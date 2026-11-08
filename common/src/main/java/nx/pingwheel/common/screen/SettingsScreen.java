@@ -80,7 +80,7 @@ public class SettingsScreen extends OptionsSubScreen {
 		this.list.addSmall(getDetailDistanceOption(), getMaxSimultaneousPingsOption());
 
 		var syncServersBtn = net.minecraft.client.gui.components.Button.builder(
-			Component.literal("🌐 Синхронизация серверов..."),
+			Component.translatable("settings.pingwheel.server_sync"),
 			btn -> {
 				if (this.minecraft != null) {
 					this.minecraft.gui.setScreen(new ServerSyncScreen(this));
@@ -92,7 +92,7 @@ public class SettingsScreen extends OptionsSubScreen {
 			LanguageUtils.settings("check_updates").get(),
 			btn -> {
 				btn.active = false;
-				btn.setMessage(Component.literal("⏳ Проверка..."));
+				btn.setMessage(Component.translatable("settings.pingwheel.checking"));
 				nx.pingwheel.common.updater.UpdateManager.checkForUpdates(false).whenComplete((updated, t) -> {
 					if (this.minecraft != null) {
 						this.minecraft.execute(() -> {

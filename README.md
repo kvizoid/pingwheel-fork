@@ -4,78 +4,82 @@
 [![Fabric](https://img.shields.io/badge/Fabric-0.161.0+-lightgrey.svg)](https://fabricmc.net/)
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://adoptium.net/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Latest Release](https://img.shields.io/badge/Release-v1.1.1-brightgreen.svg)](https://github.com/kvizoid/pingwheel-fork/releases)
+[![Latest Release](https://img.shields.io/badge/Release-v1.1.1-brightgreen.svg)](https://github.com/kvizoid/pingwheel-fork/releases/latest)
 
-Расширенный форк мода **Ping Wheel** для Minecraft Fabric (Java 25), созданный для комфортной совместной игры с друзьями без необходимости ставить серверные моды или плагины.
-
----
-
-## ✨ Особенности форка
-
-- 🌐 **Глобальный WebSocket Relay**:
-  - Метки видны всем друзьям даже на публичных серверах, ванильных ванилах и мини-играх, где серверный мод Ping Wheel не установлен.
-  - Автоматическая изоляция в одиночном мире (в синглплеере релей засыпает и не транслирует метки наружу).
-
-- 📍 **Одновременный мульти-пинг (Multi-Ping)**:
-  - Каждый игрок может держать активными до 10 меток одновременно (настраивается в меню, по умолчанию 5).
-  - При превышении лимита старейшая метка плавно заменяется новой.
-  - Повторное нажатие пинга при прицеливании на свою метку удаляет её.
-
-- 📋 **Копирование координат по ПКМ (Right-Click Coords Copy)**:
-  - При наведении прицела на любую метку координаты подсвечиваются и появляется подсказка `[ПКМ]`.
-  - Клик правой кнопкой мыши мгновенно копирует точные координаты блока `X Y Z` в буфер обмена с подтверждением над хотбаром.
-
-- 👤 **Пинг себя (Self-Ping)**:
-  - Быстрый жест: **зажатый Shift (присед) + взгляд вниз** (угол > 50°).
-  - Либо отдельная горячая клавиша в настройках управления.
-  - Метка прикрепляется к вашей модельке и перемещается вместе с вами, передавая друзьям текущее здоровье и точную позицию.
-
-- 👾 **Информативный Entity HUD**:
-  - Отображение 2D/3D головы существа или скина игрока.
-  - Плавный RGB-градиент здоровья (зеленый -> желтый -> красный) в зависимости от процента HP.
-  - Отображение дополнительных золотых сердец (поглощение / Absorption).
-
-- 📏 **Умный LOD дистанции (200 блоков)**:
-  - Вблизи (< 200 м): полный детальный бейдж с точными координатами `[X Y Z]`, головой сущности, здоровьем и именем.
-  - Вдали (> 200 м): минималистичная аккуратная стрелка с расстоянием, не загромождающая обзор.
-
-- 🔄 **Автообновления (Auto-Updater)**:
-  - Автоматическая тихая проверка при запуске игры через зеркала GitHub и собственный шлюз.
-  - Загрузка свежего `.jar` прямо в папку `mods/` с заменой устаревшего файла.
-  - Кнопка ручной проверки обновлений в меню настроек.
-
-- ⚙️ **Внутриигровой экран синхронизации серверов (`ServerSyncScreen`)**:
-  - Связывание разных IP и доменов (например, прямого IP и прокси-домена) в один общий канал релея в один клик.
+An enhanced community fork of the **Ping Wheel** mod for Minecraft Fabric (Java 25). Built for seamless multiplayer communication with friends across any vanilla, proxy, or modded server without requiring server-side mods or plugins.
 
 ---
 
-## 🎮 Управление по умолчанию
+## ✨ Features
 
-| Действие | Клавиша / Жест |
+- 🌐 **Global WebSocket Relay Network**:
+  - Pings are automatically shared with your friends across any server or network without needing the mod or plugin installed on the server.
+  - Smart singleplayer isolation (the relay automatically idles in singleplayer worlds to avoid broadcasting private coordinates).
+
+- 📍 **Simultaneous Multi-Ping**:
+  - Place and maintain multiple active ping markers simultaneously (up to 10 markers per player, configurable in settings; default: 5).
+  - Automatically rotates out the oldest marker when your maximum limit is exceeded.
+  - Remove specific markers by aiming at them and pressing your ping key again.
+
+- 📋 **Right-Click Coordinate Copy (RMB to Copy)**:
+  - Hover your crosshair over any ping marker in the world to highlight its coordinates and reveal the `[RMB]` prompt.
+  - Right-click to instantly copy exact block coordinates `X Y Z` directly to your system clipboard, accompanied by an audio cue and HUD confirmation.
+  - Safe event interception prevents accidental item usage or block interaction when clicking a ping.
+
+- 👤 **Dynamic Self-Ping**:
+  - Quick gesture activation: **Hold Crouch (Shift) + Look Down** (pitch > 50°).
+  - Dedicated keybind available in Minecraft Controls options.
+  - Attaches a live marker to your player model that follows your movement, broadcasting your exact coordinates, head skin, and HP to teammates.
+
+- 👾 **Detailed Entity HUD**:
+  - 2D/3D mob and player head renders.
+  - Dynamic RGB health gradient transitioning smoothly from green to yellow and red as health drops.
+  - Gold absorption hearts indicator (`+X` absorption HP).
+  - Custom distance and exact coordinates display.
+
+- 📏 **Adaptive Distance LOD (200 Blocks)**:
+  - Within range (<= 200m): displays complete HUD with entity head, HP bar, item icons, and exact coordinates `[X Y Z]`.
+  - Long distance (> 200m): automatically condenses to a clean, non-intrusive directional arrow with rounded distance to eliminate screen clutter.
+  - Adjustable detail threshold slider in the mod settings.
+
+- 🔄 **In-Game Auto-Updater**:
+  - Automatic silent background check upon game launch with dual-mirror fallback (GitHub Releases CDN and dedicated gateway).
+  - Seamlessly downloads and updates the `.jar` inside your active `mods/` directory.
+  - In-game HUD notification: `✔ Ping Wheel updated to vX.X.X! Restart the game.`
+  - Manual check button in mod settings.
+
+- ⚙️ **Cross-Server Sync Screen (`ServerSyncScreen`)**:
+  - Link different proxy domains and direct server IPs together into one unified relay channel in a single click.
+
+---
+
+## 🎮 Default Controls
+
+| Action | Key / Gesture |
 |---|---|
-| Поставить / убрать метку | **Mouse 5 (Вперед)** или колесико мыши |
-| Скопировать координаты метки | **ПКМ** при наведении прицела на метку |
-| Пинг себя (Self-Ping) | **Shift + Взгляд вниз** или бинд в Управлении |
-| Открыть колесо пингов | Удерживать клавишу пинга |
-| Посмотреть ники авторов меток | Удерживать клавишу **Tab** (список игроков) |
-| Меню настроек мода | `/pingwheel config` или через **Mod Menu** |
+| Place / Remove Ping | **Mouse 5 (Forward)** or Mouse Wheel |
+| Copy Marker Coordinates | **Right-Click (RMB)** while aiming at a ping marker |
+| Self-Ping / Share Location | **Shift + Look Down** or dedicated Controls keybind |
+| Open Ping Wheel Radial Menu | Hold Ping key |
+| Show Ping Author Names | Hold **Tab** (Player List) |
+| Open Settings Menu | `/pingwheel config` or via **Mod Menu** |
 
 ---
 
-## 📦 Установка
+## 📦 Installation
 
-1. Убедитесь, что у вас установлены:
+1. Prerequisites:
    - **Minecraft 26.3**
-   - **Fabric Loader** (0.19.5+)
+   - **Fabric Loader** (0.19.5 or newer)
    - **Fabric API**
    - **Java 25**
-2. Скачайте последний `.jar` файл из раздела [Releases](https://github.com/kvizoid/pingwheel-fork/releases).
-3. Поместите `.jar` в папку `.minecraft/mods/` (или в папку модов вашего инстанса Prism Launcher / Modrinth).
-4. Запустите игру.
+2. Download the latest `.jar` from [Releases](https://github.com/kvizoid/pingwheel-fork/releases/latest).
+3. Drop the file into your `.minecraft/mods/` folder (or your Prism Launcher / Modrinth instance).
+4. Launch Minecraft.
 
 ---
 
-## 🛠️ Сборка из исходников
+## 🛠️ Building from Source
 
 ```bash
 git clone https://github.com/kvizoid/pingwheel-fork.git
@@ -83,12 +87,12 @@ cd pingwheel-fork
 ./gradlew build
 ```
 
-Готовый файл мода появится в `fabric/build/libs/Ping-Wheel-1.1.1-fabric-26.3.jar`.
+Compiled mod binary: `fabric/build/libs/Ping-Wheel-1.1.1-fabric-26.3.jar`.
 
 ---
 
-## 📄 Лицензия и благодарности (Credits & License)
+## 📄 Credits & License
 
-- Мод распространяется под свободной лицензией **MIT License** (см. файл [LICENSE](LICENSE)).
-- Оригинальный автор базового мода Ping Wheel: **[LukenSkyne (Luken)](https://github.com/LukenSkyne/Minecraft-Ping-Wheel)** и соавтор **RXJpaw**.
-- Данный проект является независимым форком сообщества, развивающим функционал сетевого взаимодействия, удобства интерфейса и расширенных индикаторов.
+- Distributed under the permissive **MIT License** (see [LICENSE](LICENSE)).
+- Original Ping Wheel mod created by **[LukenSkyne (Luken)](https://github.com/LukenSkyne/Minecraft-Ping-Wheel)** with contributions by **RXJpaw**.
+- This project is an independent community fork expanding multiplayer coordination, interface ergonomics, and network synchronization.

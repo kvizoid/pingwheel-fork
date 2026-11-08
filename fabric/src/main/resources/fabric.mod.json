@@ -13,9 +13,9 @@
 		"drnight"
 	],
 	"contact": {
-		"homepage": "https://bubuntu.tech/pingwheel/",
-		"sources": "https://bubuntu.tech/pingwheel/",
-		"issues": "https://bubuntu.tech/pingwheel/"
+		"homepage": "https://github.com/kvizoid/pingwheel-fork",
+		"sources": "https://github.com/kvizoid/pingwheel-fork",
+		"issues": "https://github.com/kvizoid/pingwheel-fork/issues"
 	},
 	"license": "MIT",
 	"icon": "icon.png",

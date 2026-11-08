@@ -185,7 +185,7 @@ public class PingManager {
 
 		if (Game.player != null) {
 			Game.player.sendOverlayMessage(
-				Component.literal("§a✔ Координаты скопированы: §6" + coordsStr)
+				Component.literal("§a").append(Component.translatable("pingwheel.coords_copied", "§6" + coordsStr))
 			);
 		}
 

@@ -2,6 +2,7 @@ package nx.pingwheel.common.updater;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import nx.pingwheel.common.CommonClient;
 import nx.pingwheel.common.Global;
@@ -85,7 +86,7 @@ public class UpdateManager {
 
 				if (json == null) {
 					if (!silent && Game != null && Game.player != null) {
-						Game.player.sendOverlayMessage(Component.literal("§cСервер обновлений недоступен"));
+						Game.player.sendOverlayMessage(Component.translatable("update.pingwheel.unavailable").withStyle(ChatFormatting.RED));
 					}
 					return false;
 				}
@@ -102,14 +103,14 @@ public class UpdateManager {
 					return downloadAndInstall(downloadUrl, remoteVersion, silent);
 				} else {
 					if (!silent && Game != null && Game.player != null) {
-						Game.player.sendOverlayMessage(Component.literal("§a✔ У вас актуальная версия Ping Wheel"));
+						Game.player.sendOverlayMessage(Component.translatable("update.pingwheel.up_to_date").withStyle(ChatFormatting.GREEN));
 					}
 					return false;
 				}
 			} catch (Exception e) {
 				Global.LOGGER.warn("[PingWheel] Update check failed: " + e.getMessage());
 				if (!silent && Game != null && Game.player != null) {
-					Game.player.sendOverlayMessage(Component.literal("§cНе удалось проверить обновления"));
+					Game.player.sendOverlayMessage(Component.translatable("update.pingwheel.failed").withStyle(ChatFormatting.RED));
 				}
 				return false;
 			} finally {
@@ -192,7 +193,7 @@ public class UpdateManager {
 				Global.LOGGER.info("[PingWheel] Successfully auto-updated to v" + versionName);
 				if (Game != null && Game.player != null) {
 					Game.player.sendOverlayMessage(
-						Component.literal("§a✔ Ping Wheel автоматически обновлен до v" + versionName + "! Перезапустите игру.")
+						Component.translatable("update.pingwheel.success", versionName).withStyle(ChatFormatting.GREEN)
 					);
 				}
 				return true;
