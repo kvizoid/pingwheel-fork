@@ -36,12 +36,12 @@ public class PingLocationRenderer {
 
 		final var labelUseTeamColor = CLIENT_CONFIG.getTeamColorMode() == TeamColorMode.FULL || CLIENT_CONFIG.getTeamColorMode() == TeamColorMode.LABELS_ONLY;
 		final var pingUseTeamColor = CLIENT_CONFIG.getTeamColorMode() == TeamColorMode.FULL || CLIENT_CONFIG.getTeamColorMode() == TeamColorMode.PING_ONLY;
-		int distanceColor = labelUseTeamColor ? ping.getTeamColor() : WHITE;
+		int distanceColor = labelUseTeamColor ? ping.getTeamColor() : 0xFFF1F5F9;
 		int pingColor = pingUseTeamColor ? ping.getTeamColor() : WHITE;
 
 		if (ping.isHostile()) {
 			pingColor = HOSTILE_PING_COLOR;
-			distanceColor = HOSTILE_LABEL_COLOR;
+			distanceColor = 0xFFF1F5F9;
 		}
 
 		final boolean isDetailed = ping.getDistance() <= CLIENT_CONFIG.getDetailDistance();
@@ -58,9 +58,9 @@ public class PingLocationRenderer {
 			int bz = (int)Math.floor(ping.getPos().z);
 
 			var rightText = Component.literal(bx + " " + by + " " + bz);
-			int coordsColor = isHovered ? 0xFFFFFF55 : 0xFFFFD700;
+			int coordsColor = isHovered ? 0xFFFFFFFF : 0xFF94A3B8;
 			if (isHovered) {
-				rightText = rightText.append(Component.translatable("pingwheel.rmb_badge").withStyle(ChatFormatting.AQUA));
+				rightText = rightText.append(Component.literal(" ").append(Component.translatable("pingwheel.rmb_badge").withStyle(ChatFormatting.GOLD)));
 			}
 
 			ctx.renderInlinePing(leftText, rightText, compactPlayerInfo, ping.getItemStack(), CLIENT_CONFIG.isItemIconVisible(), pingColor, distanceColor, coordsColor);
@@ -71,15 +71,16 @@ public class PingLocationRenderer {
 			} else {
 				distanceText = LanguageUtils.UNIT_METERS.get("%d".formatted(Math.round(ping.getDistance())));
 			}
-			ctx.renderLabel(distanceText, -1.5f, compactPlayerInfo, null, distanceColor);
+			ctx.renderLabel(distanceText, -1.6f, compactPlayerInfo, null, distanceColor);
 			ctx.renderPing(ping.getItemStack(), isDetailed && CLIENT_CONFIG.isItemIconVisible(), pingColor);
 		}
 
 		if (isDetailed) {
+			float entityYOffset = showInlineCoords ? 1.6f : 1.75f;
 			if (ping.getTargetPlayerInfo() != null && ping.getTargetEntityName() != null) {
-				ctx.renderLabel(ping.getTargetEntityName(), 1.75f, ping.getTargetPlayerInfo(), null, WHITE);
+				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, ping.getTargetPlayerInfo(), null, WHITE);
 			} else if (ping.getTargetEntityName() != null) {
-				ctx.renderLabel(ping.getTargetEntityName(), 1.75f, null, ping.getTargetEntityIcon(), WHITE);
+				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, null, ping.getTargetEntityIcon(), WHITE);
 			} else {
 				final var isPlayerListHeld = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.HOLD && Game.options.keyPlayerList.isDown();
 				final var showVerbosePlayerInfo = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.ALWAYS || isPlayerListHeld;
@@ -88,7 +89,7 @@ public class PingLocationRenderer {
 					var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().name()));
 					if (!labelUseTeamColor) displayName = displayName.withStyle(ChatFormatting.RESET);
 
-					ctx.renderLabel(displayName, 1.75f, author, null, WHITE);
+					ctx.renderLabel(displayName, entityYOffset, author, null, WHITE);
 				}
 			}
 		}

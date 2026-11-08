@@ -38,25 +38,29 @@ public class DrawContext {
 
 	public void renderLabel(Component text, float yOffset, PlayerInfo player, ItemStack icon, int color) {
 		var extraWidth = (player != null || icon != null) ? 10 : 0;
-		var textMetrics = new Vec2(
-			Game.font.width(text) + extraWidth,
-			Game.font.lineHeight
-		);
-		var textOffset = textMetrics.scale(-0.5f).add(new Vec2(0f, textMetrics.y * yOffset));
+		int textWidth = Game.font.width(text);
+		int totalWidth = textWidth + extraWidth;
+		int halfWidth = (totalWidth / 2) + 4;
+
+		int padY = 6;
+		float textY = -3.5f;
 
 		matrices.pushMatrix();
-		matrices.translate(textOffset.x, textOffset.y);
-		guiGraphics.fill(-2, -2, (int)textMetrics.x + 1, (int)textMetrics.y, SHADOW_BLACK);
-		guiGraphics.text(Game.font, text, extraWidth, 0, color, false);
+		matrices.translate(0f, 9f * yOffset);
+
+		guiGraphics.fill(-halfWidth, -padY, halfWidth, padY, SHADOW_BLACK);
+
+		int startX = -totalWidth / 2;
+		guiGraphics.text(Game.font, text, startX + extraWidth, (int)textY, color, false);
 
 		if (player != null) {
 			matrices.pushMatrix();
-			matrices.translate(-0.5f, -0.5f);
+			matrices.translate(startX, textY + 0.5f);
 			renderPlayerHead(player);
 			matrices.popMatrix();
 		} else if (icon != null) {
 			matrices.pushMatrix();
-			matrices.translate(-0.5f, -0.5f);
+			matrices.translate(startX - 1f, textY - 0.5f);
 			matrices.scale(0.5f, 0.5f);
 			guiGraphics.item(icon, 0, 0);
 			matrices.popMatrix();
@@ -73,32 +77,39 @@ public class DrawContext {
 
 	public void renderInlinePing(Component leftText, Component rightText, PlayerInfo player, ItemStack itemStack, boolean drawItemIcon, int pingColor, int leftColor, int rightColor) {
 		boolean isItem = (itemStack != null && drawItemIcon);
-		int iconHalf = isItem ? 9 : 5;
-		int padY = isItem ? 9 : 6;
+		int iconHalf = isItem ? 9 : 4;
+		int padY = isItem ? 10 : 7;
 
 		int extraLeft = player != null ? 10 : 0;
 		int leftWidth = Game.font.width(leftText) + extraLeft;
 		int rightWidth = rightText != null ? Game.font.width(rightText) : 0;
 
-		float leftStartX = -iconHalf - 4 - leftWidth;
-		float rightStartX = iconHalf + 4;
-		float textY = -4.5f;
+		// Symmetrically center the entire pill around x = 0 so the diamond is in the dead center
+		int halfWidth = Math.max(leftWidth, rightWidth) + iconHalf + 6;
 
-		float totalEndX = rightText != null ? (rightStartX + rightWidth) : iconHalf;
-		guiGraphics.fill((int)leftStartX - 2, -padY, (int)totalEndX + 2, padY, SHADOW_BLACK);
+		guiGraphics.fill(-halfWidth, -padY, halfWidth, padY, SHADOW_BLACK);
 
-		guiGraphics.text(Game.font, leftText, (int)leftStartX + extraLeft, (int)textY, leftColor, false);
+		// Center left text in left wing [-halfWidth, -iconHalf - 2]
+		int leftAreaWidth = halfWidth - iconHalf - 2;
+		int leftStartX = -halfWidth + (leftAreaWidth - leftWidth) / 2;
+		float textY = -3.5f;
+
+		guiGraphics.text(Game.font, leftText, leftStartX + extraLeft, (int)textY, leftColor, false);
 		if (player != null) {
 			matrices.pushMatrix();
-			matrices.translate(leftStartX - 0.5f, textY - 0.5f);
+			matrices.translate(leftStartX, textY + 0.5f);
 			renderPlayerHead(player);
 			matrices.popMatrix();
 		}
 
+		// Ping icon / diamond in the exact center (0, 0)
 		renderPing(itemStack, drawItemIcon, pingColor);
 
+		// Center right text in right wing [iconHalf + 2, halfWidth]
 		if (rightText != null) {
-			guiGraphics.text(Game.font, rightText, (int)rightStartX, (int)textY, rightColor, false);
+			int rightAreaWidth = halfWidth - iconHalf - 2;
+			int rightStartX = iconHalf + 2 + (rightAreaWidth - rightWidth) / 2;
+			guiGraphics.text(Game.font, rightText, rightStartX, (int)textY, rightColor, false);
 		}
 	}
 

@@ -168,12 +168,12 @@ public class PingView extends PingData {
 						int maxHp = Math.round(targetPlayer.getMaxHealth());
 						if (hp > 0 && maxHp > 0) {
 							int color = getHealthColor(targetPlayer.getHealth(), targetPlayer.getMaxHealth());
-							baseName.append(Component.literal(" " + hp + "/" + maxHp).withStyle(s -> s.withColor(color)));
+							String hpStr = (hp == maxHp) ? (hp + "❤") : (hp + "/" + maxHp + "❤");
+							baseName.append(Component.literal("  " + hpStr).withStyle(s -> s.withColor(color)));
 							int absorption = Math.round(targetPlayer.getAbsorptionAmount());
 							if (absorption > 0) {
-								baseName.append(Component.literal("+" + absorption).withStyle(ChatFormatting.GOLD));
+								baseName.append(Component.literal(" +" + absorption).withStyle(ChatFormatting.GOLD));
 							}
-							baseName.append(Component.literal("❤").withStyle(s -> s.withColor(color)));
 						}
 						this.targetEntityName = baseName;
 					} else if (ent instanceof LivingEntity mob) {
@@ -182,12 +182,12 @@ public class PingView extends PingData {
 						int maxHp = Math.round(mob.getMaxHealth());
 						if (maxHp > 0) {
 							int color = getHealthColor(mob.getHealth(), mob.getMaxHealth());
-							baseName.append(Component.literal(" " + hp + "/" + maxHp).withStyle(s -> s.withColor(color)));
+							String hpStr = (hp == maxHp) ? (hp + "❤") : (hp + "/" + maxHp + "❤");
+							baseName.append(Component.literal("  " + hpStr).withStyle(s -> s.withColor(color)));
 							int absorption = Math.round(mob.getAbsorptionAmount());
 							if (absorption > 0) {
-								baseName.append(Component.literal("+" + absorption).withStyle(ChatFormatting.GOLD));
+								baseName.append(Component.literal(" +" + absorption).withStyle(ChatFormatting.GOLD));
 							}
-							baseName.append(Component.literal("❤").withStyle(s -> s.withColor(color)));
 						}
 						this.targetEntityName = baseName;
 						if (this.targetEntityIcon == null) {

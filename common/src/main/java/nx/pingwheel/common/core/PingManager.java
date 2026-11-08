@@ -31,9 +31,19 @@ public class PingManager {
 		for (int i = 0; i < PING_REPO.size(); i++) {
 			var entry = PING_REPO.get(i);
 
-			if (Objects.equals(entry.authorId, newPing.authorId) && entry.sequence == newPing.sequence) {
-				index = i;
-				break;
+			if (Objects.equals(entry.authorId, newPing.authorId)) {
+				if (entry.sequence == newPing.sequence) {
+					index = i;
+					break;
+				}
+				if (newPing.entityId != null && Objects.equals(entry.entityId, newPing.entityId)) {
+					index = i;
+					break;
+				}
+				if (entry.getPos() != null && newPing.getPos() != null && entry.getPos().closerThan(newPing.getPos(), 2.0)) {
+					index = i;
+					break;
+				}
 			}
 		}
 
