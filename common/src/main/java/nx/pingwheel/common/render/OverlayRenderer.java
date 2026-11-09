@@ -81,7 +81,9 @@ public class OverlayRenderer {
 		java.util.List<nx.pingwheel.common.core.PingView> rulerPings = new java.util.ArrayList<>();
 		for (var p : pingRepo) {
 			if (p != null && p.dimension == currentDim && p.getPos() != null && (p.isRuler() || shiftHeld)) {
-				rulerPings.add(p);
+				if (p.getDistance() <= CLIENT_CONFIG.getDetailDistance()) {
+					rulerPings.add(p);
+				}
 			}
 		}
 
@@ -157,7 +159,9 @@ public class OverlayRenderer {
 		java.util.List<nx.pingwheel.common.core.PingView> rulerPings = new java.util.ArrayList<>();
 		for (var p : pingRepo) {
 			if (p != null && p.dimension == currentDim && p.getPos() != null && (p.isRuler() || shiftHeld)) {
-				rulerPings.add(p);
+				if (p.getDistance() <= CLIENT_CONFIG.getDetailDistance()) {
+					rulerPings.add(p);
+				}
 			}
 		}
 
@@ -274,7 +278,7 @@ public class OverlayRenderer {
 		int currentDim = GameContext.getDimension();
 
 		for (var ping : pingRepo) {
-			if (ping == null || ping.dimension != currentDim || ping.entityId == null) continue;
+			if (ping == null || ping.dimension != currentDim || ping.entityId == null || ping.getDistance() > CLIENT_CONFIG.getDetailDistance()) continue;
 			var ent = GameContext.getEntity(ping.entityId);
 			if (ent == null || ent.isRemoved() || !(ent instanceof net.minecraft.world.entity.LivingEntity)) continue;
 

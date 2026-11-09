@@ -3,119 +3,197 @@ package nx.pingwheel.common.screen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.OptionInstance;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.OptionsList;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
-import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
-import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.config.PlayerInfoMode;
 import nx.pingwheel.common.config.TeamColorMode;
-import nx.pingwheel.common.integration.TeamContext;
-import nx.pingwheel.common.integration.TeamContextHandler;
 import nx.pingwheel.common.resource.LanguageUtils;
+import nx.pingwheel.common.updater.UpdateManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static nx.pingwheel.common.CommonClient.Game;
 import static nx.pingwheel.common.config.ClientConfig.*;
 
-public class SettingsScreen extends OptionsSubScreen {
+public class SettingsScreen extends Screen {
 
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int GRAY = 0xFFA0A0A0;
 
 	private final ClientConfig config;
-
-	private Screen parent;
+	private final Screen parent;
 	private EditBox channelTextField;
+	private int currentTab = 0;
+	private final Button[] tabButtons = new Button[4];
+	private final List<AbstractWidget> currentTabWidgets = new ArrayList<>();
+	private Button doneButton;
 
 	public SettingsScreen() {
-		super(null, null, LanguageUtils.settings("title").get());
-		this.config = ClientConfig.HANDLER.getConfig();
+		this(null);
 	}
 
 	public SettingsScreen(Screen parent) {
-		this();
+		super(LanguageUtils.settings("title").get());
 		this.parent = parent;
+		this.config = ClientConfig.HANDLER.getConfig();
 	}
 
 	@Override
 	public void tick() {
-		if (this.channelTextField.isFocused() && this.getFocused() != this.channelTextField) {
+		if (this.channelTextField != null && this.channelTextField.isFocused() && this.getFocused() != this.channelTextField) {
 			this.setFocused(this.channelTextField);
 		}
 	}
 
 	@Override
 	protected void init() {
-		this.addTitle();
-		this.addContents();
-		this.addFooter();
-		this.layout.visitWidgets(this::addRenderableWidget);
-		this.repositionElements();
+		this.clearWidgets();
+		this.currentTabWidgets.clear();
+
+		int panelWidth = 380;
+		int panelHeight = 240;
+		int panelLeft = (this.width - panelWidth) / 2;
+		int panelTop = (this.height - panelHeight) / 2;
+
+		int tabW = (panelWidth - 20) / 4;
+		for (int i = 0; i < 4; i++) {
+			final int tabIndex = i;
+			this.tabButtons[i] = Button.builder(getTabTitle(i), btn -> switchTab(tabIndex))
+				.bounds(panelLeft + 10 + i * tabW, panelTop + 24, tabW, 20)
+				.build();
+			this.addRenderableWidget(this.tabButtons[i]);
+		}
+
+		this.doneButton = Button.builder(CommonComponents.GUI_DONE, btn -> this.onClose())
+			.bounds(panelLeft + (panelWidth - 120) / 2, panelTop + panelHeight - 26, 120, 20)
+			.build();
+		this.addRenderableWidget(this.doneButton);
+
+		this.buildCurrentTabWidgets();
 	}
 
-	@Override
-	protected void addContents() {
-		this.list = this.layout.addToContents(new OptionsList(this.minecraft, this.width, this));
-		this.addOptions();
-	}
-
-	@Override
-	protected void addOptions() {
-		this.list.addSmall(getPingVolumeOption(), getPingDurationOption());
-
-		this.list.addSmall(getPingDistanceOption(), getCorrectionPeriodOption());
-
-		this.list.addSmall(getItemIconsVisibleOption(), getDirectionIndicatorVisibleOption());
-
-		this.list.addSmall(getPlayerInfoModeOption(), getTeamColorModeOption());
-
-		this.list.addSmall(getPingSizeOption(), getCoordinatesVisibleOption());
-
-		this.list.addSmall(getDetailDistanceOption(), getMaxSimultaneousPingsOption());
-
-		this.list.addSmall(getRulerVisibleOption(), getMobRadiusVisibleOption());
-
-		var syncServersBtn = net.minecraft.client.gui.components.Button.builder(
-			Component.translatable("settings.pingwheel.server_sync"),
-			btn -> {
-				if (this.minecraft != null) {
-					this.minecraft.gui.setScreen(new ServerSyncScreen(this));
-				}
-			}
-		).build();
-
-		var updateBtn = net.minecraft.client.gui.components.Button.builder(
-			LanguageUtils.settings("check_updates").get(),
-			btn -> {
-				btn.active = false;
-				btn.setMessage(Component.translatable("settings.pingwheel.checking"));
-				nx.pingwheel.common.updater.UpdateManager.checkForUpdates(false).whenComplete((updated, t) -> {
-					if (this.minecraft != null) {
-						this.minecraft.execute(() -> {
-							btn.active = true;
-							btn.setMessage(LanguageUtils.settings("check_updates").get());
-						});
-					}
-				});
-			}
-		).build();
-
-		this.list.addSmall(syncServersBtn, updateBtn);
-
-		this.channelTextField = new EditBox(this.font, -1, -1, 200, 20, Component.empty());
-		this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
-		this.channelTextField.setValue(config.getChannel());
-		this.channelTextField.setResponder(text -> {
-			config.setChannel(text);
+	private void switchTab(int newTab) {
+		if (this.channelTextField != null) {
+			config.setChannel(this.channelTextField.getValue());
 			ClientConfig.HANDLER.save();
-		});
-		this.addWidget(this.channelTextField);
+		}
+
+		this.currentTab = newTab;
+		for (int i = 0; i < 4; i++) {
+			this.tabButtons[i].setMessage(getTabTitle(i));
+		}
+		for (var widget : this.currentTabWidgets) {
+			this.removeWidget(widget);
+		}
+		this.currentTabWidgets.clear();
+		this.buildCurrentTabWidgets();
+	}
+
+	private Component getTabTitle(int index) {
+		String title = switch (index) {
+			case 0 -> "Общие";
+			case 1 -> "Визуал";
+			case 2 -> "Утилиты";
+			case 3 -> "Сеть";
+			default -> "";
+		};
+		if (this.currentTab == index) {
+			return Component.literal(title).withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
+		} else {
+			return Component.literal(title).withStyle(ChatFormatting.GRAY);
+		}
+	}
+
+	private void addTabWidget(AbstractWidget widget) {
+		this.currentTabWidgets.add(widget);
+		this.addRenderableWidget(widget);
+	}
+
+	private void buildCurrentTabWidgets() {
+		if (this.minecraft == null) return;
+
+		int panelWidth = 380;
+		int panelHeight = 240;
+		int panelLeft = (this.width - panelWidth) / 2;
+		int panelTop = (this.height - panelHeight) / 2;
+
+		int col1X = panelLeft + 15;
+		int col2X = panelLeft + 200;
+		int colWidth = 165;
+		int row1Y = panelTop + 54;
+		int row2Y = row1Y + 24;
+		int row3Y = row2Y + 24;
+		int row4Y = row3Y + 24;
+
+		if (currentTab == 0) {
+			addTabWidget(getPingVolumeOption().createButton(this.minecraft.options, col1X, row1Y, colWidth));
+			addTabWidget(getPingDurationOption().createButton(this.minecraft.options, col2X, row1Y, colWidth));
+
+			addTabWidget(getPingDistanceOption().createButton(this.minecraft.options, col1X, row2Y, colWidth));
+			addTabWidget(getCorrectionPeriodOption().createButton(this.minecraft.options, col2X, row2Y, colWidth));
+		} else if (currentTab == 1) {
+			addTabWidget(getPingSizeOption().createButton(this.minecraft.options, col1X, row1Y, colWidth));
+			addTabWidget(getDetailDistanceOption().createButton(this.minecraft.options, col2X, row1Y, colWidth));
+
+			addTabWidget(getMaxSimultaneousPingsOption().createButton(this.minecraft.options, col1X, row2Y, colWidth));
+			addTabWidget(getCoordinatesVisibleOption().createButton(this.minecraft.options, col2X, row2Y, colWidth));
+
+			addTabWidget(getItemIconsVisibleOption().createButton(this.minecraft.options, col1X, row3Y, colWidth));
+			addTabWidget(getDirectionIndicatorVisibleOption().createButton(this.minecraft.options, col2X, row3Y, colWidth));
+
+			addTabWidget(getPlayerInfoModeOption().createButton(this.minecraft.options, col1X, row4Y, colWidth));
+			addTabWidget(getTeamColorModeOption().createButton(this.minecraft.options, col2X, row4Y, colWidth));
+		} else if (currentTab == 2) {
+			addTabWidget(getRulerVisibleOption().createButton(this.minecraft.options, col1X, row1Y, colWidth));
+			addTabWidget(getMobRadiusVisibleOption().createButton(this.minecraft.options, col2X, row1Y, colWidth));
+		} else if (currentTab == 3) {
+			if (this.channelTextField == null) {
+				this.channelTextField = new EditBox(this.font, col1X, row1Y + 10, 350, 20, Component.empty());
+				this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
+				this.channelTextField.setValue(config.getChannel());
+				this.channelTextField.setResponder(text -> {
+					config.setChannel(text);
+					ClientConfig.HANDLER.save();
+				});
+			} else {
+				this.channelTextField.setPosition(col1X, row1Y + 10);
+			}
+			addTabWidget(this.channelTextField);
+
+			var syncServersBtn = Button.builder(
+				Component.translatable("settings.pingwheel.server_sync"),
+				btn -> {
+					if (this.minecraft != null) {
+						this.minecraft.gui.setScreen(new ServerSyncScreen(this));
+					}
+				}
+			).bounds(col1X, row2Y + 12, colWidth, 20).build();
+			addTabWidget(syncServersBtn);
+
+			var updateBtn = Button.builder(
+				LanguageUtils.settings("check_updates").get(),
+				btn -> {
+					btn.active = false;
+					btn.setMessage(Component.translatable("settings.pingwheel.checking"));
+					UpdateManager.checkForUpdates(false).whenComplete((updated, t) -> {
+						if (this.minecraft != null) {
+							this.minecraft.execute(() -> {
+								btn.active = true;
+								btn.setMessage(LanguageUtils.settings("check_updates").get());
+							});
+						}
+					});
+				}
+			).bounds(col2X, row2Y + 12, colWidth, 20).build();
+			addTabWidget(updateBtn);
+		}
 	}
 
 	@Override
@@ -133,53 +211,64 @@ public class SettingsScreen extends OptionsSubScreen {
 	}
 
 	@Override
-	public void repositionElements() {
-		super.repositionElements();
-		this.list.updateSize(this.width, this.layout);
-	}
-
-	@Override
 	public void extractRenderState(GuiGraphicsExtractor ctx, int mouseX, int mouseY, float delta) {
+		this.extractTransparentBackground(ctx);
+
+		int panelWidth = 380;
+		int panelHeight = 240;
+		int panelLeft = (this.width - panelWidth) / 2;
+		int panelTop = (this.height - panelHeight) / 2;
+
+		ctx.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + panelHeight, 0xE810131B);
+
+		ctx.fill(panelLeft, panelTop, panelLeft + panelWidth, panelTop + 1, 0xFF353C4E);
+		ctx.fill(panelLeft, panelTop + panelHeight - 1, panelLeft + panelWidth, panelTop + panelHeight, 0xFF353C4E);
+		ctx.fill(panelLeft, panelTop, panelLeft + 1, panelTop + panelHeight, 0xFF353C4E);
+		ctx.fill(panelLeft + panelWidth - 1, panelTop, panelLeft + panelWidth, panelTop + panelHeight, 0xFF353C4E);
+
+		ctx.fill(panelLeft + 1, panelTop + 1, panelLeft + panelWidth - 1, panelTop + 3, 0xFF7F63AE);
+
+		ctx.text(this.font, Component.literal("Ping Wheel").withStyle(ChatFormatting.BOLD), panelLeft + 14, panelTop + 8, WHITE, false);
+
+		int titleW = this.font.width("Ping Wheel");
+		int pillX = panelLeft + 14 + titleW + 8;
+		int pillY = panelTop + 7;
+		int pillW = this.font.width("v1.1.5") + 8;
+		int pillH = 11;
+		ctx.fill(pillX, pillY, pillX + pillW, pillY + pillH, 0x407F63AE);
+		ctx.text(this.font, Component.literal("v1.1.5"), pillX + 4, pillY + 2, 0xFFD1C4E9, false);
+
+		int tabW = (panelWidth - 20) / 4;
+		int activeTabX = panelLeft + 10 + currentTab * tabW;
+		int activeTabY = panelTop + 45;
+		ctx.fill(activeTabX + 2, activeTabY, activeTabX + tabW - 2, activeTabY + 2, 0xFF9D7FE0);
+
+		if (currentTab == 0) {
+			int cardX = panelLeft + 15;
+			int cardY = panelTop + 108;
+			int cardW = 350;
+			int cardH = 50;
+			ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0x30000000);
+			ctx.text(this.font, Component.literal("• Нажмите клавишу пинга для установки метки"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.literal("• Зажмите Shift + взгляд вниз для пинга себя и координат"), cardX + 8, cardY + 22, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.literal("• Дальность меток ограничивает дальность видимости на HUD"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
+		} else if (currentTab == 2) {
+			int cardX = panelLeft + 15;
+			int cardY = panelTop + 84;
+			int cardW = 350;
+			int cardH = 74;
+			ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0x30000000);
+			ctx.text(this.font, Component.literal("• 3D Линейка: зажмите Shift для замера расстояния"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.literal("• Shift + ПКМ по метке фиксирует линейку постоянно"), cardX + 8, cardY + 22, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.literal("• Радиус мобов: 1px пунктирный круг угрозы под врагами"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.literal("• Окклюзия: круг не просвечивает сквозь стены и тела мобов"), cardX + 8, cardY + 50, 0xFF94A3B8, false);
+		} else if (currentTab == 3) {
+			ctx.text(this.font, Component.translatable("settings.pingwheel.channel").withStyle(ChatFormatting.GRAY), panelLeft + 15, panelTop + 53, 0xFFA0AAB8, false);
+			ctx.text(this.font, Component.literal("Оставьте пустым для общего канала").withStyle(ChatFormatting.DARK_GRAY), panelLeft + 15, panelTop + 87, 0xFF707A8A, false);
+			ctx.text(this.font, Component.literal("Релей: ws://relay.bubuntu.tech:8899").withStyle(ChatFormatting.DARK_GRAY), panelLeft + 15, panelTop + 146, 0xFF707A8A, false);
+		}
+
 		super.extractRenderState(ctx, mouseX, mouseY, delta);
-		this.list.extractRenderState(ctx, mouseX, mouseY, delta);
-
-		final var yOffset = 50 + 25 * this.list.children().size();
-		this.channelTextField.setPosition(width / 2 - 100, yOffset);
-		ctx.text(this.font, LanguageUtils.settings("channel").get(), this.width / 2 - 100, this.channelTextField.getY() - 12, GRAY);
-		this.channelTextField.extractRenderState(ctx, mouseX, mouseY, delta);
-
-		if (this.channelTextField.getValue().isEmpty() && !this.channelTextField.isFocused()) {
-			ctx.text(this.font, getChannelPlaceholder(), this.width / 2 - 100 + 4, this.channelTextField.getY() + 6, WHITE);
-		}
-
-		if (this.channelTextField.isHoveredOrFocused() && !this.channelTextField.isFocused()) {
-			final var clientTooltipComponentList = Tooltip.create(LanguageUtils.settings("channel.tooltip").get()).toCharSequence(Game)
-				.stream()
-				.map(ClientTooltipComponent::create)
-				.toList();
-
-			ctx.tooltip(this.font, clientTooltipComponentList, mouseX, mouseY, DefaultTooltipPositioner.INSTANCE, null, false);
-		}
-	}
-
-	private MutableComponent getChannelPlaceholder() {
-		if (Game.player == null) {
-			return Component.empty();
-		}
-
-		final var teamContext = TeamContextHandler.getSelfContext();
-		MutableComponent placeholder;
-
-		if (teamContext == TeamContext.NONE) {
-			placeholder = LanguageUtils.of("value", "global").get();
-		} else {
-			placeholder = LanguageUtils.settings("channel").path("placeholder")
-				.get(LanguageUtils.of("value", teamContext.toString()).get());
-		}
-
-		return placeholder
-			.withStyle(ChatFormatting.ITALIC)
-			.withStyle(ChatFormatting.DARK_GRAY);
 	}
 
 	private OptionInstance<Integer> getPingVolumeOption() {
@@ -363,4 +452,3 @@ public class SettingsScreen extends OptionsSubScreen {
 		);
 	}
 }
-
