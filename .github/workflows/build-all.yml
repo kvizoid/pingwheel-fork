@@ -1,0 +1,88 @@
+name: "Build All Versions & Loaders"
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag to attach jars to (e.g. v1.1.5)"
+        required: false
+        default: "v1.1.5"
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: "Build ${{ matrix.branch }} (${{ matrix.mc_version }})"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - branch: "main"
+            mc_version: "26.3"
+            java: 25
+            loaders: "fabric"
+          - branch: "1.21.4"
+            mc_version: "1.21.4"
+            java: 21
+            loaders: "fabric,neoforge"
+          - branch: "1.21.1"
+            mc_version: "1.21.1"
+            java: 21
+            loaders: "fabric,neoforge"
+          - branch: "1.20.1"
+            mc_version: "1.20.1"
+            java: 17
+            loaders: "fabric,forge"
+
+    steps:
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+          fetch-depth: 0
+
+      - name: "Set up JDK ${{ matrix.java }}"
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: ${{ matrix.java }}
+
+      - name: "Setup Gradle"
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: "Build ${{ matrix.loaders }} on ${{ matrix.mc_version }}"
+        run: |
+          chmod +x gradlew
+          IFS=',' read -ra ADDR <<< "${{ matrix.loaders }}"
+          for loader in "${ADDR[@]}"; do
+            echo "::group::Building $loader"
+            ./gradlew ":${loader}:build" -x test
+            echo "::endgroup::"
+          done
+
+      - name: "Collect build jars"
+        run: |
+          mkdir -p dist
+          find fabric/build/libs neoforge/build/libs forge/build/libs -maxdepth 1 -name "*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" -exec cp {} dist/ \; || true
+          ls -la dist/
+
+      - name: "Upload Artifacts"
+        uses: actions/upload-artifact@v4
+        with:
+          name: "jars-${{ matrix.mc_version }}"
+          path: dist/*.jar
+
+      - name: "Attach to GitHub Release"
+        if: ${{ inputs.release_tag != '' || github.event_name == 'release' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ inputs.release_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          fi
+          echo "Uploading jars to release $TAG..."
+          gh release upload "$TAG" dist/*.jar --clobber || true
