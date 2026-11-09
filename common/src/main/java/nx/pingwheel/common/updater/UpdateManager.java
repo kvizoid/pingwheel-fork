@@ -23,7 +23,7 @@ import static nx.pingwheel.common.CommonClient.Game;
 public class UpdateManager {
 	private UpdateManager() {}
 
-	public static final int CURRENT_BUILD = 4;
+	public static final int CURRENT_BUILD = 5;
 	public static final String[] UPDATE_URLS = {
 		"https://raw.githubusercontent.com/kvizoid/pingwheel-fork/main/version.json",
 		"https://bubuntu.tech/pingwheel/version.json",
