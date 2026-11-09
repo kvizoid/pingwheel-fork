@@ -45,11 +45,11 @@ public class PingLocationRenderer {
 		}
 
 		final boolean isDetailed = ping.getDistance() <= CLIENT_CONFIG.getDetailDistance();
-		final boolean isHovered = (ping == PingManager.getHoveredPing());
-		final boolean showInlineCoords = (isDetailed || isHovered) && CLIENT_CONFIG.isCoordinatesVisible() && ping.getPos() != null;
+		final boolean isHovered = isDetailed && (ping == PingManager.getHoveredPing());
+		final boolean showInlineCoords = isDetailed && CLIENT_CONFIG.isCoordinatesVisible() && ping.getPos() != null;
 
 		final var author = ping.getPlayerInfo();
-		final var compactPlayerInfo = ((isDetailed || isHovered) && CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.COMPACT) ? author : null;
+		final var compactPlayerInfo = (isDetailed && CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.COMPACT) ? author : null;
 
 		final int OVERWORLD_COLOR = 0xFFA8E7FF;
 		final int NETHER_COLOR = 0xFFFFA8A8;
@@ -96,10 +96,10 @@ public class PingLocationRenderer {
 				distanceText = LanguageUtils.UNIT_METERS.get("%d".formatted(Math.round(ping.getDistance())));
 			}
 			ctx.renderLabel(distanceText, -1.6f, compactPlayerInfo, null, distanceColor);
-			ctx.renderPing(ping.getItemStack(), isDetailed && CLIENT_CONFIG.isItemIconVisible(), pingColor);
+			ctx.renderPing(isDetailed ? ping.getItemStack() : null, isDetailed && CLIENT_CONFIG.isItemIconVisible(), pingColor);
 		}
 
-		if (isDetailed || isHovered) {
+		if (isDetailed) {
 			float entityYOffset = showInlineCoords ? 1.6f : 1.75f;
 			if (ping.getTargetPlayerInfo() != null && ping.getTargetEntityName() != null) {
 				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, ping.getTargetPlayerInfo(), null, WHITE);

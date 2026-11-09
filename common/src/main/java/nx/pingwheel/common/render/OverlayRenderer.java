@@ -112,9 +112,25 @@ public class OverlayRenderer {
 				continue;
 			}
 
+			float midX = (clipped[0] + clipped[2]) * 0.5f;
+			float midY = (clipped[1] + clipped[3]) * 0.5f;
+			float dx = clipped[2] - clipped[0];
+			float dy = clipped[3] - clipped[1];
+			float len = (float)Math.hypot(dx, dy);
+			float gap = 24.0f;
 
-			ctx.renderDashedLine(clipped[0], clipped[1], clipped[2], clipped[3], 1.0f, 4.0f, 3.0f, 0x75FFFFFF);
-
+			if (len > gap * 2.2f) {
+				float nx = dx / len;
+				float ny = dy / len;
+				float p1x = midX - nx * gap;
+				float p1y = midY - ny * gap;
+				float p2x = midX + nx * gap;
+				float p2y = midY + ny * gap;
+				ctx.renderDashedLine(clipped[0], clipped[1], p1x, p1y, 1.0f, 4.0f, 3.0f, 0x75FFFFFF);
+				ctx.renderDashedLine(p2x, p2y, clipped[2], clipped[3], 1.0f, 4.0f, 3.0f, 0x75FFFFFF);
+			} else {
+				ctx.renderDashedLine(clipped[0], clipped[1], clipped[2], clipped[3], 1.0f, 4.0f, 3.0f, 0x75FFFFFF);
+			}
 
 			if (s1.x >= 0 && s1.x <= screenW && s1.y >= 0 && s1.y <= screenH) {
 				ctx.getGuiGraphics().fill((int)s1.x - 1, (int)s1.y - 1, (int)s1.x + 2, (int)s1.y + 2, 0x90FFFFFF);
@@ -149,6 +165,7 @@ public class OverlayRenderer {
 		var wnd = Game.getWindow();
 		float screenW = (float)wnd.getGuiScaledWidth();
 		float screenH = (float)wnd.getGuiScaledHeight();
+		float margin = 20f;
 		float cx = screenW * 0.5f;
 		float cy = screenH * 0.5f;
 
@@ -163,20 +180,13 @@ public class OverlayRenderer {
 				continue;
 			}
 
-			Vec3 midWorld = p1.getPos().add(p2.getPos()).scale(0.5);
-			float midX, midY;
-			var worldCtx = CommonClient.LAST_WORLD_CONTEXT;
-			if (worldCtx != null) {
-				var midScreen = MathUtils.worldToScreen(midWorld, worldCtx);
-				if (midScreen == null || midScreen.isBehindCamera() || midScreen.depth < 0.15f) {
-					continue;
-				}
-				midX = midScreen.x;
-				midY = midScreen.y;
-			} else {
-				midX = (s1.x + s2.x) * 0.5f;
-				midY = (s1.y + s2.y) * 0.5f;
+			float[] clipped = nx.pingwheel.common.math.MathUtils.clipLine(s1.x, s1.y, s2.x, s2.y, -margin, -margin, screenW + margin, screenH + margin);
+			if (clipped == null) {
+				continue;
 			}
+
+			float midX = (clipped[0] + clipped[2]) * 0.5f;
+			float midY = (clipped[1] + clipped[3]) * 0.5f;
 
 			if (midX < -30 || midX > screenW + 30 || midY < -30 || midY > screenH + 30) {
 				continue;
@@ -219,7 +229,7 @@ public class OverlayRenderer {
 
 			boolean isHovered = Math.hypot(cx - midX, cy - midY) < 32.0;
 
-			var badgeText = net.minecraft.network.chat.Component.literal(mainStr).withStyle(net.minecraft.ChatFormatting.WHITE);
+			var badgeText = net.minecraft.network.chat.Component.literal(mainStr);
 
 			var m = ctx.getMatrices();
 			m.pushMatrix();

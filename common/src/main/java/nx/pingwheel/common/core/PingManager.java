@@ -164,7 +164,7 @@ public class PingManager {
 			if (ping == null || ping.getScreenPos() == null || ping.getScreenPos().isBehindCamera()) {
 				continue;
 			}
-			if (ping.dimension != GameContext.getDimension()) {
+			if (ping.dimension != GameContext.getDimension() || ping.getDistance() > CLIENT_CONFIG.getDetailDistance()) {
 				continue;
 			}
 
@@ -188,7 +188,7 @@ public class PingManager {
 	}
 
 	public static void copyPingCoordinates(PingView ping) {
-		if (ping == null || ping.getPos() == null || Game == null) {
+		if (ping == null || ping.getPos() == null || Game == null || ping.getDistance() > CLIENT_CONFIG.getDetailDistance()) {
 			return;
 		}
 
