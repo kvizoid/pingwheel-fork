@@ -6,6 +6,7 @@ import nx.pingwheel.common.CommonClient;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.core.GameContext;
 import nx.pingwheel.common.core.PingManager;
+import nx.pingwheel.common.core.PingView;
 import nx.pingwheel.common.math.MathUtils;
 
 import static nx.pingwheel.common.CommonClient.Game;
@@ -117,7 +118,11 @@ public class OverlayRenderer {
 			float dx = clipped[2] - clipped[0];
 			float dy = clipped[3] - clipped[1];
 			float len = (float)Math.hypot(dx, dy);
-			float gap = 24.0f;
+
+			float rulerScale = (p1.getScale() + p2.getScale()) * 0.5f;
+			String badgeStr = formatRulerString(p1, p2);
+			float halfW = (Game.font.width(badgeStr) / 2.0f) + 4.0f;
+			float gap = (halfW + 3.0f) * rulerScale;
 
 			if (len > gap * 2.2f) {
 				float nx = dx / len;
@@ -192,60 +197,66 @@ public class OverlayRenderer {
 				continue;
 			}
 
-			var b1 = net.minecraft.core.BlockPos.containing(p1.getPos().x, p1.getPos().y, p1.getPos().z);
-			var b2 = net.minecraft.core.BlockPos.containing(p2.getPos().x, p2.getPos().y, p2.getPos().z);
-
-			int bdx = Math.abs(b2.getX() - b1.getX());
-			int bdy = Math.abs(b2.getY() - b1.getY());
-			int bdz = Math.abs(b2.getZ() - b1.getZ());
-
-			int sx = bdx + 1;
-			int sy = bdy + 1;
-			int sz = bdz + 1;
-
-			int activeDims = (sx > 1 ? 1 : 0) + (sy > 1 ? 1 : 0) + (sz > 1 ? 1 : 0);
-
-			String mainStr;
-
-			if (activeDims <= 1) {
-				int totalBlocks = Math.max(sx, Math.max(sy, sz));
-				mainStr = totalBlocks + " б";
-			} else if (activeDims == 2) {
-				int d1, d2;
-				if (sy == 1) {
-					d1 = sx;
-					d2 = sz;
-				} else if (sz == 1) {
-					d1 = sx;
-					d2 = sy;
-				} else {
-					d1 = sz;
-					d2 = sy;
-				}
-				mainStr = d1 + " × " + d2 + " б";
-			} else {
-				mainStr = sx + " × " + sy + " × " + sz + " б";
-			}
-
-			boolean isHovered = Math.hypot(cx - midX, cy - midY) < 32.0;
-
+			float rulerScale = (p1.getScale() + p2.getScale()) * 0.5f;
+			String mainStr = formatRulerString(p1, p2);
 			var badgeText = net.minecraft.network.chat.Component.literal(mainStr);
+
+			int textWidth = Game.font.width(badgeText);
+			int halfWidth = (textWidth / 2) + 4;
+			int padY = 6;
+			float textY = -3.5f;
+
+			float localX = Math.abs(cx - midX) / rulerScale;
+			float localY = Math.abs(cy - midY) / rulerScale;
+			boolean isHovered = localX <= (halfWidth + 2) && localY <= (padY + 2);
 
 			var m = ctx.getMatrices();
 			m.pushMatrix();
 			m.translate(midX, midY);
-			m.scale(0.85f, 0.85f);
+			m.scale(rulerScale, rulerScale);
 
-			int textWidth = Game.font.width(badgeText);
 			int shadowColor = isHovered ? net.minecraft.util.ARGB.color(100, 16, 21, 32) : net.minecraft.util.ARGB.color(64, 0, 0, 0);
 			int textColor = isHovered ? 0xFFFFFFFF : net.minecraft.util.ARGB.color(200, 241, 245, 249);
-			int halfWidth = (textWidth / 2) + 4;
-			int padY = 6;
 
 			ctx.getGuiGraphics().fill(-halfWidth, -padY, halfWidth, padY, shadowColor);
-			ctx.getGuiGraphics().text(Game.font, badgeText, -textWidth / 2, -3, textColor, false);
+			ctx.getGuiGraphics().text(Game.font, badgeText, -textWidth / 2, (int)textY, textColor, false);
 
 			m.popMatrix();
+		}
+	}
+
+	private static String formatRulerString(PingView p1, PingView p2) {
+		var b1 = net.minecraft.core.BlockPos.containing(p1.getPos().x, p1.getPos().y, p1.getPos().z);
+		var b2 = net.minecraft.core.BlockPos.containing(p2.getPos().x, p2.getPos().y, p2.getPos().z);
+
+		int bdx = Math.abs(b2.getX() - b1.getX());
+		int bdy = Math.abs(b2.getY() - b1.getY());
+		int bdz = Math.abs(b2.getZ() - b1.getZ());
+
+		int sx = bdx + 1;
+		int sy = bdy + 1;
+		int sz = bdz + 1;
+
+		int activeDims = (sx > 1 ? 1 : 0) + (sy > 1 ? 1 : 0) + (sz > 1 ? 1 : 0);
+
+		if (activeDims <= 1) {
+			int totalBlocks = Math.max(sx, Math.max(sy, sz));
+			return totalBlocks + " б";
+		} else if (activeDims == 2) {
+			int d1, d2;
+			if (sy == 1) {
+				d1 = sx;
+				d2 = sz;
+			} else if (sz == 1) {
+				d1 = sx;
+				d2 = sy;
+			} else {
+				d1 = sz;
+				d2 = sy;
+			}
+			return d1 + " × " + d2 + " б";
+		} else {
+			return sx + " × " + sy + " × " + sz + " б";
 		}
 	}
 
