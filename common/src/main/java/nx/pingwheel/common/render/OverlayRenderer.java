@@ -242,10 +242,11 @@ public class OverlayRenderer {
 		int sz = bdz + 1;
 
 		int activeDims = (sx > 1 ? 1 : 0) + (sy > 1 ? 1 : 0) + (sz > 1 ? 1 : 0);
+		String bUnit = net.minecraft.network.chat.Component.translatable("unit.pingwheel.blocks_short").getString();
 
 		if (activeDims <= 1) {
 			int totalBlocks = Math.max(sx, Math.max(sy, sz));
-			return totalBlocks + " б";
+			return totalBlocks + " " + bUnit;
 		} else if (activeDims == 2) {
 			int d1, d2;
 			if (sy == 1) {
@@ -258,9 +259,9 @@ public class OverlayRenderer {
 				d1 = sz;
 				d2 = sy;
 			}
-			return d1 + " × " + d2 + " б";
+			return d1 + " × " + d2 + " " + bUnit;
 		} else {
-			return sx + " × " + sy + " × " + sz + " б";
+			return sx + " × " + sy + " × " + sz + " " + bUnit;
 		}
 	}
 

@@ -97,18 +97,20 @@ public class SettingsScreen extends Screen {
 	}
 
 	private Component getTabTitle(int index) {
-		String title = switch (index) {
-			case 0 -> "Общие";
-			case 1 -> "Визуал";
-			case 2 -> "Утилиты";
-			case 3 -> "Сеть";
+		String key = switch (index) {
+			case 0 -> "settings.pingwheel.tab.general";
+			case 1 -> "settings.pingwheel.tab.display";
+			case 2 -> "settings.pingwheel.tab.tools";
+			case 3 -> "settings.pingwheel.tab.network";
 			default -> "";
 		};
-		if (this.currentTab == index) {
-			return Component.literal(title).withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD);
-		} else {
-			return Component.literal(title).withStyle(ChatFormatting.GRAY);
-		}
+		var comp = Component.translatable(key);
+		return this.currentTab == index ? comp.withStyle(ChatFormatting.WHITE, ChatFormatting.BOLD) : comp.withStyle(ChatFormatting.GRAY);
+	}
+
+	private Component getPreLaunchButtonMessage() {
+		var state = Component.translatable(config.isPreLaunchUpdate() ? "value.pingwheel.on" : "value.pingwheel.off");
+		return Component.translatable("settings.pingwheel.prelaunch_update", state);
 	}
 
 	private void addTabWidget(AbstractWidget widget) {
@@ -157,7 +159,7 @@ public class SettingsScreen extends Screen {
 			if (this.channelTextField == null) {
 				this.channelTextField = new EditBox(this.font, col1X, panelTop + 68, 350, 20, Component.empty());
 				this.channelTextField.setMaxLength(MAX_CHANNEL_LENGTH);
-				this.channelTextField.setHint(Component.literal("Общий канал (по умолчанию)").withStyle(ChatFormatting.DARK_GRAY));
+				this.channelTextField.setHint(Component.translatable("settings.pingwheel.channel.default_hint").withStyle(ChatFormatting.DARK_GRAY));
 				this.channelTextField.setValue(config.getChannel());
 				this.channelTextField.setResponder(text -> {
 					config.setChannel(text);
@@ -196,11 +198,11 @@ public class SettingsScreen extends Screen {
 			addTabWidget(updateBtn);
 
 			var preLaunchBtn = Button.builder(
-				Component.literal("Автообновление на старте: " + (config.isPreLaunchUpdate() ? "Вкл" : "Выкл")),
+				getPreLaunchButtonMessage(),
 				btn -> {
 					config.setPreLaunchUpdate(!config.isPreLaunchUpdate());
 					ClientConfig.HANDLER.save();
-					btn.setMessage(Component.literal("Автообновление на старте: " + (config.isPreLaunchUpdate() ? "Вкл" : "Выкл")));
+					btn.setMessage(getPreLaunchButtonMessage());
 				}
 			).bounds(col1X, panelTop + 122, 350, 20).build();
 			addTabWidget(preLaunchBtn);
@@ -243,12 +245,13 @@ public class SettingsScreen extends Screen {
 		ctx.text(this.font, titleComponent, panelLeft + 14, panelTop + 8, WHITE, false);
 
 		int titleW = this.font.width(titleComponent);
-		int pillX = panelLeft + 14 + titleW + 12;
+		String verStr = "v" + nx.pingwheel.common.Global.MOD_VERSION;
+		int pillW = this.font.width(verStr) + 8;
+		int pillX = panelLeft + 14 + titleW + 16;
 		int pillY = panelTop + 7;
-		int pillW = this.font.width("v1.1.6") + 8;
 		int pillH = 11;
 		ctx.fill(pillX, pillY, pillX + pillW, pillY + pillH, 0x407F63AE);
-		ctx.text(this.font, Component.literal("v1.1.6"), pillX + 4, pillY + 2, 0xFFD1C4E9, false);
+		ctx.text(this.font, Component.literal(verStr), pillX + 4, pillY + 2, 0xFFD1C4E9, false);
 
 		int tabW = (panelWidth - 20) / 4;
 		int activeTabX = panelLeft + 10 + currentTab * tabW;
@@ -261,22 +264,22 @@ public class SettingsScreen extends Screen {
 			int cardW = 350;
 			int cardH = 50;
 			ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0x30000000);
-			ctx.text(this.font, Component.literal("• Нажмите клавишу пинга для установки метки"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
-			ctx.text(this.font, Component.literal("• Зажмите Shift + взгляд вниз для пинга координат"), cardX + 8, cardY + 22, 0xFF94A3B8, false);
-			ctx.text(this.font, Component.literal("• Дальность меток ограничивает дальность на HUD"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.ping_key"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.self_ping"), cardX + 8, cardY + 22, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.distance_limit"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
 		} else if (currentTab == 2) {
 			int cardX = panelLeft + 15;
 			int cardY = panelTop + 84;
 			int cardW = 350;
 			int cardH = 68;
 			ctx.fill(cardX, cardY, cardX + cardW, cardY + cardH, 0x30000000);
-			ctx.text(this.font, Component.literal("• 3D Линейка: зажмите Shift для замера расстояния"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
-			ctx.text(this.font, Component.literal("• Shift + ПКМ по метке фиксирует линейку постоянно"), cardX + 8, cardY + 22, 0xFFCBD5E1, false);
-			ctx.text(this.font, Component.literal("• Радиус мобов: 1px пунктирный круг угрозы"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
-			ctx.text(this.font, Component.literal("• Умная окклюзия: скрывается за стенами и блоками"), cardX + 8, cardY + 50, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.ruler"), cardX + 8, cardY + 8, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.ruler_pin"), cardX + 8, cardY + 22, 0xFFCBD5E1, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.mob_radius"), cardX + 8, cardY + 36, 0xFF94A3B8, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.occlusion"), cardX + 8, cardY + 50, 0xFF94A3B8, false);
 		} else if (currentTab == 3) {
 			ctx.text(this.font, Component.translatable("settings.pingwheel.channel").withStyle(ChatFormatting.GRAY), panelLeft + 15, panelTop + 54, 0xFFA0AAB8, false);
-			ctx.text(this.font, Component.literal("• Проверяет обновления до старта Minecraft").withStyle(ChatFormatting.DARK_GRAY), panelLeft + 15, panelTop + 148, 0xFF808A98, false);
+			ctx.text(this.font, Component.translatable("settings.pingwheel.hint.prelaunch").withStyle(ChatFormatting.DARK_GRAY), panelLeft + 15, panelTop + 148, 0xFF808A98, false);
 		}
 
 		super.extractRenderState(ctx, mouseX, mouseY, delta);

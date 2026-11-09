@@ -23,7 +23,7 @@ import static nx.pingwheel.common.CommonClient.Game;
 public class UpdateManager {
 	private UpdateManager() {}
 
-	public static final int CURRENT_BUILD = 6;
+	public static final int CURRENT_BUILD = 7;
 	public static final String[] UPDATE_URLS = {
 		"https://raw.githubusercontent.com/kvizoid/pingwheel-fork/main/version.json",
 		"https://bubuntu.tech/pingwheel/version.json",
@@ -159,14 +159,27 @@ public class UpdateManager {
 
 	private static boolean downloadAndInstall(String downloadUrl, String versionName, boolean silent) {
 		try {
-			var codeSource = CommonClient.class.getProtectionDomain().getCodeSource();
-			if (codeSource == null || codeSource.getLocation() == null) {
-				return false;
+			File currentJar = null;
+			for (var path : nx.pingwheel.common.platform.IPlatformContextService.INSTANCE.getModOriginPaths()) {
+				var file = path.toFile();
+				if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
+					currentJar = file;
+					break;
+				}
 			}
 
-			var currentJar = new File(codeSource.getLocation().toURI());
+			if (currentJar == null) {
+				var codeSource = CommonClient.class.getProtectionDomain().getCodeSource();
+				if (codeSource != null && codeSource.getLocation() != null) {
+					var file = new File(codeSource.getLocation().toURI());
+					if (file.isFile() && file.getName().toLowerCase().endsWith(".jar")) {
+						currentJar = file;
+					}
+				}
+			}
+
 			File modsDir;
-			if (currentJar.isFile() && currentJar.getName().toLowerCase().endsWith(".jar")) {
+			if (currentJar != null && currentJar.isFile()) {
 				modsDir = currentJar.getParentFile();
 			} else {
 				modsDir = new File("mods");
@@ -175,7 +188,7 @@ public class UpdateManager {
 			}
 
 			File tempFile = new File(modsDir, "Ping-Wheel-update.tmp");
-			File targetFile = currentJar.isFile() ? currentJar : new File(modsDir, "Ping-Wheel-" + versionName + "-fabric-26.3.jar");
+			File targetFile = new File(modsDir, "Ping-Wheel-" + versionName + "-fabric-26.3.jar");
 
 			java.io.InputStream stream = null;
 			String[] urls = {
@@ -299,10 +312,10 @@ public class UpdateManager {
 			if (installed) {
 				System.err.println("");
 				System.err.println("================================================================================");
-				System.err.println("[PingWheel] МОД АВТОМАТИЧЕСКИ ОБНОВЛЕН ДО v" + remoteVersion + "!");
-				System.err.println("[PingWheel] Файл мода в папке mods/ успешно заменен на актуальную версию.");
-				System.err.println("[PingWheel] Minecraft был завершен, чтобы новая версия вступила в силу.");
-				System.err.println("[PingWheel] Нажмите «Играть» еще раз в лаунчере для запуска игры с обновленным модом.");
+				System.err.println("[PingWheel] MOD AUTOMATICALLY UPDATED TO v" + remoteVersion + "!");
+				System.err.println("[PingWheel] Mod jar in mods/ successfully replaced with the latest version.");
+				System.err.println("[PingWheel] Minecraft was closed to apply the update.");
+				System.err.println("[PingWheel] Please press 'Play' in launcher to start with the updated mod.");
 				System.err.println("================================================================================");
 				System.err.println("");
 				System.exit(0);

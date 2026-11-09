@@ -6,6 +6,7 @@ import net.minecraft.client.KeyMapping;
 import nx.pingwheel.common.platform.IPlatformContextService;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import static nx.pingwheel.common.Global.MOD_ID;
 
@@ -16,6 +17,13 @@ public class PlatformContextServiceImpl implements IPlatformContextService {
 		return FabricLoader.getInstance().getModContainer(MOD_ID)
 			.map(container -> container.getMetadata().getVersion().getFriendlyString())
 			.orElse("Unknown");
+	}
+
+	@Override
+	public List<Path> getModOriginPaths() {
+		return FabricLoader.getInstance().getModContainer(MOD_ID)
+			.map(container -> container.getOrigin().getPaths())
+			.orElse(List.of());
 	}
 
 	@Override

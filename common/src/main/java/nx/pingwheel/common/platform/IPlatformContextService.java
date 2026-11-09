@@ -3,6 +3,7 @@ package nx.pingwheel.common.platform;
 import net.minecraft.client.KeyMapping;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.ServiceLoader;
 
 public interface IPlatformContextService {
@@ -12,6 +13,7 @@ public interface IPlatformContextService {
 		.orElseThrow(() -> new IllegalStateException("No IPlatformContextService implementation found!"));
 
 	String getSelfModVersion();
+	List<Path> getModOriginPaths();
 	Path resolveGameDir(String path);
 	Path resolveConfigDir(String path);
 	void registerKeyMapping(KeyMapping keyMapping);

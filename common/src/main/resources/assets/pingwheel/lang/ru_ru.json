@@ -42,6 +42,7 @@
 	"unit.pingwheel.seconds": "%s с",
 	"unit.pingwheel.meters": "%s м",
 	"unit.pingwheel.percent": "%s%%",
+	"unit.pingwheel.blocks_short": "б",
 
 	"pingwheel.coords_copied": "✔ Координаты скопированы: %s",
 	"pingwheel.coords_copied_dim": "✔ Координаты (%s) скопированы: %s",
@@ -73,5 +74,21 @@
 	"update.pingwheel.unavailable": "Сервер обновлений недоступен",
 	"update.pingwheel.up_to_date": "✔ У вас актуальная версия Ping Wheel",
 	"update.pingwheel.failed": "Не удалось проверить обновления",
-	"update.pingwheel.success": "✔ Ping Wheel автоматически обновлен до v%s! Перезапустите игру."
+	"update.pingwheel.success": "✔ Ping Wheel автоматически обновлен до v%s! Перезапустите игру.",
+	"settings.pingwheel.tab.general": "Общие",
+	"settings.pingwheel.tab.display": "Визуал",
+	"settings.pingwheel.tab.tools": "Утилиты",
+	"settings.pingwheel.tab.network": "Сеть",
+	"settings.pingwheel.channel.default_hint": "Общий канал (по умолчанию)",
+	"settings.pingwheel.prelaunch_update": "Автообновление на старте: %s",
+	"settings.pingwheel.hint.ping_key": "• Нажмите клавишу пинга для установки метки",
+	"settings.pingwheel.hint.self_ping": "• Зажмите Shift + взгляд вниз для пинга координат",
+	"settings.pingwheel.hint.distance_limit": "• Дальность меток ограничивает дальность на HUD",
+	"settings.pingwheel.hint.ruler": "• 3D Линейка: зажмите Shift для замера расстояния",
+	"settings.pingwheel.hint.ruler_pin": "• Shift + ПКМ по метке фиксирует линейку постоянно",
+	"settings.pingwheel.hint.mob_radius": "• Радиус мобов: 1px пунктирный круг угрозы",
+	"settings.pingwheel.hint.occlusion": "• Умная окклюзия: скрывается за стенами и блоками",
+	"settings.pingwheel.hint.prelaunch": "• Проверяет обновления до старта Minecraft",
+	"value.pingwheel.on": "Вкл",
+	"value.pingwheel.off": "Выкл"
 }

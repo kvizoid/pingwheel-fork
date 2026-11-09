@@ -42,6 +42,7 @@
 	"unit.pingwheel.seconds": "%ss",
 	"unit.pingwheel.meters": "%sm",
 	"unit.pingwheel.percent": "%s%%",
+	"unit.pingwheel.blocks_short": "b",
 
 	"command.pingwheel.config.description": "open configuration interface",
 	"command.pingwheel.channel.get.description": "get your current channel",
@@ -99,5 +100,21 @@
 	"update.pingwheel.unavailable": "Update server is unreachable",
 	"update.pingwheel.up_to_date": "✔ Ping Wheel is up to date",
 	"update.pingwheel.failed": "Failed to check for updates",
-	"update.pingwheel.success": "✔ Ping Wheel updated to v%s! Restart the game."
+	"update.pingwheel.success": "✔ Ping Wheel updated to v%s! Restart the game.",
+	"settings.pingwheel.tab.general": "General",
+	"settings.pingwheel.tab.display": "Display",
+	"settings.pingwheel.tab.tools": "Tools",
+	"settings.pingwheel.tab.network": "Network",
+	"settings.pingwheel.channel.default_hint": "Default Channel (Public)",
+	"settings.pingwheel.prelaunch_update": "Startup Auto-Update: %s",
+	"settings.pingwheel.hint.ping_key": "• Press ping key to place a mark",
+	"settings.pingwheel.hint.self_ping": "• Sneak + look down to ping coordinates",
+	"settings.pingwheel.hint.distance_limit": "• Ping distance limits visibility on HUD",
+	"settings.pingwheel.hint.ruler": "• 3D Ruler: hold Sneak to measure distance",
+	"settings.pingwheel.hint.ruler_pin": "• Sneak + RMB on mark to lock ruler permanently",
+	"settings.pingwheel.hint.mob_radius": "• Mob danger: 1px dotted circle under hostiles",
+	"settings.pingwheel.hint.occlusion": "• Smart occlusion: hides behind walls and blocks",
+	"settings.pingwheel.hint.prelaunch": "• Checks for updates before Minecraft starts",
+	"value.pingwheel.on": "On",
+	"value.pingwheel.off": "Off"
 }
