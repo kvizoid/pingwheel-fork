@@ -69,9 +69,10 @@ public class OverlayRenderer {
 		}
 
 		int currentDim = GameContext.getDimension();
+		boolean shiftHeld = Game != null && Game.options != null && Game.options.keyShift.isDown();
 		java.util.List<nx.pingwheel.common.core.PingView> rulerPings = new java.util.ArrayList<>();
 		for (var p : pingRepo) {
-			if (p != null && p.dimension == currentDim && p.getPos() != null && p.isRuler()) {
+			if (p != null && p.dimension == currentDim && p.getPos() != null && (p.isRuler() || shiftHeld)) {
 				rulerPings.add(p);
 			}
 		}
@@ -124,9 +125,10 @@ public class OverlayRenderer {
 		}
 
 		int currentDim = GameContext.getDimension();
+		boolean shiftHeld = Game != null && Game.options != null && Game.options.keyShift.isDown();
 		java.util.List<nx.pingwheel.common.core.PingView> rulerPings = new java.util.ArrayList<>();
 		for (var p : pingRepo) {
-			if (p != null && p.dimension == currentDim && p.getPos() != null && p.isRuler()) {
+			if (p != null && p.dimension == currentDim && p.getPos() != null && (p.isRuler() || shiftHeld)) {
 				rulerPings.add(p);
 			}
 		}

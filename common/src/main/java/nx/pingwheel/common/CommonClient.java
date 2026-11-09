@@ -82,7 +82,18 @@ public class CommonClient {
 		if (Game.gui != null && Game.gui.screen() == null) {
 			var hovered = PingManager.getHoveredPing();
 			if (hovered != null && Game.options.keyUse.consumeClick()) {
-				PingManager.copyPingCoordinates(hovered);
+				if (Game.options.keyShift.isDown()) {
+					hovered.toggleRuler();
+					try {
+						Game.getSoundManager().play(
+							net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+								net.minecraft.sounds.SoundEvents.UI_BUTTON_CLICK, 1.5f
+							)
+						);
+					} catch (Throwable ignored) {}
+				} else {
+					PingManager.copyPingCoordinates(hovered);
+				}
 			}
 		}
 	}

@@ -46,6 +46,7 @@ public class PingView extends PingData {
 	private boolean entityDead;
 	private boolean hostile;
 	private boolean altDimension = false;
+	private Boolean rulerOverride = null;
 
 	public boolean isAltDimension() {
 		return altDimension;
@@ -56,7 +57,18 @@ public class PingView extends PingData {
 	}
 
 	public boolean isRuler() {
+		if (rulerOverride != null) {
+			return rulerOverride;
+		}
 		return sequence < 0;
+	}
+
+	public void setRuler(boolean ruler) {
+		this.rulerOverride = ruler;
+	}
+
+	public void toggleRuler() {
+		setRuler(!isRuler());
 	}
 
 	public PlayerInfo getPlayerInfo() {

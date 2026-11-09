@@ -70,6 +70,16 @@ public class PingManager {
 				PING_REPO.remove(oldestIndex);
 			}
 
+			if (newPing.isRuler()) {
+				for (int i = PING_REPO.size() - 1; i >= 0; i--) {
+					var entry = PING_REPO.get(i);
+					if (Objects.equals(entry.authorId, newPing.authorId)) {
+						entry.setRuler(true);
+						break;
+					}
+				}
+			}
+
 			PING_REPO.add(newPing);
 		}
 	}
