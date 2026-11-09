@@ -20,4 +20,14 @@ public abstract class MultiPlayerGameModeMixin {
 			ContainerMemoryManager.recordInteraction(hitResult.getBlockPos());
 		}
 	}
+
+	@Inject(method = "dropItem", at = @At("HEAD"))
+	private void onDropItem(LocalPlayer player, boolean entireStack, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+		if (player != null && player.getInventory() != null) {
+			var stack = player.getInventory().getSelectedItem();
+			if (!stack.isEmpty()) {
+				nx.pingwheel.common.core.DropPingManager.markPending(player, stack.copyWithCount(entireStack ? stack.getCount() : 1));
+			}
+		}
+	}
 }

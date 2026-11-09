@@ -1,9 +1,12 @@
 package nx.pingwheel.common.render;
 
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.world.phys.Vec3;
+import nx.pingwheel.common.CommonClient;
 import nx.pingwheel.common.config.ClientConfig;
 import nx.pingwheel.common.core.GameContext;
 import nx.pingwheel.common.core.PingManager;
+import nx.pingwheel.common.math.MathUtils;
 
 import static nx.pingwheel.common.CommonClient.Game;
 
@@ -28,6 +31,10 @@ public class OverlayRenderer {
 		}
 
 		m.pushMatrix();
+
+		if (CLIENT_CONFIG.isMobRadiusVisible()) {
+			drawMobRadii(ctx);
+		}
 
 		if (CLIENT_CONFIG.isRulerVisible() && pingRepo.size() >= 2) {
 			drawRulerLines(ctx);
@@ -156,8 +163,20 @@ public class OverlayRenderer {
 				continue;
 			}
 
-			float midX = (s1.x + s2.x) * 0.5f;
-			float midY = (s1.y + s2.y) * 0.5f;
+			Vec3 midWorld = p1.getPos().add(p2.getPos()).scale(0.5);
+			float midX, midY;
+			var worldCtx = CommonClient.LAST_WORLD_CONTEXT;
+			if (worldCtx != null) {
+				var midScreen = MathUtils.worldToScreen(midWorld, worldCtx);
+				if (midScreen == null || midScreen.isBehindCamera() || midScreen.depth < 0.15f) {
+					continue;
+				}
+				midX = midScreen.x;
+				midY = midScreen.y;
+			} else {
+				midX = (s1.x + s2.x) * 0.5f;
+				midY = (s1.y + s2.y) * 0.5f;
+			}
 
 			if (midX < -30 || midX > screenW + 30 || midY < -30 || midY > screenH + 30) {
 				continue;
@@ -244,5 +263,78 @@ public class OverlayRenderer {
 
 			m.popMatrix();
 		}
+	}
+
+	private static void drawMobRadii(DrawContext ctx) {
+		var worldCtx = CommonClient.LAST_WORLD_CONTEXT;
+		if (worldCtx == null || Game == null || Game.level == null) return;
+
+		final var pingRepo = PingManager.PING_REPO;
+		if (pingRepo.isEmpty()) return;
+
+		var wnd = Game.getWindow();
+		float screenW = (float)wnd.getGuiScaledWidth();
+		float screenH = (float)wnd.getGuiScaledHeight();
+		float margin = 20f;
+		int currentDim = GameContext.getDimension();
+
+		for (var ping : pingRepo) {
+			if (ping == null || ping.dimension != currentDim || ping.entityId == null) continue;
+			var ent = GameContext.getEntity(ping.entityId);
+			if (ent == null || ent.isRemoved() || !(ent instanceof net.minecraft.world.entity.LivingEntity)) continue;
+
+			float radius = getDangerRadius(ent);
+			if (radius <= 0.1f) continue;
+
+			double cx = ent.getX();
+			double cy = ent.getY() + 0.05;
+			double cz = ent.getZ();
+
+			int segments = 32;
+			int circleColor = 0x85FFA8A8;
+
+			for (int i = 0; i < segments; i++) {
+				double a1 = (i * 2.0 * Math.PI) / segments;
+				double a2 = ((i + 1) * 2.0 * Math.PI) / segments;
+
+				Vec3 p1 = new Vec3(cx + radius * Math.cos(a1), cy, cz + radius * Math.sin(a1));
+				Vec3 p2 = new Vec3(cx + radius * Math.cos(a2), cy, cz + radius * Math.sin(a2));
+
+				var s1 = MathUtils.worldToScreen(p1, worldCtx);
+				var s2 = MathUtils.worldToScreen(p2, worldCtx);
+
+				if (s1 == null || s2 == null || s1.isBehindCamera() || s2.isBehindCamera() || s1.depth < 0.15f || s2.depth < 0.15f) {
+					continue;
+				}
+
+				float[] clipped = MathUtils.clipLine(s1.x, s1.y, s2.x, s2.y, -margin, -margin, screenW + margin, screenH + margin);
+				if (clipped == null) continue;
+
+				ctx.renderDashedLine(clipped[0], clipped[1], clipped[2], clipped[3], 1.0f, 3.0f, 3.0f, circleColor);
+			}
+		}
+	}
+
+	public static float getDangerRadius(net.minecraft.world.entity.Entity entity) {
+		var type = entity.getType();
+		if (type == net.minecraft.world.entity.EntityTypes.CREEPER) return 3.2f;
+		if (type == net.minecraft.world.entity.EntityTypes.WARDEN) return 16.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.WITCH) return 9.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.SKELETON
+			|| type == net.minecraft.world.entity.EntityTypes.STRAY
+			|| type == net.minecraft.world.entity.EntityTypes.BOGGED) return 15.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.SPIDER
+			|| type == net.minecraft.world.entity.EntityTypes.CAVE_SPIDER) return 5.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.BLAZE) return 16.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.GHAST) return 24.0f;
+		if (type == net.minecraft.world.entity.EntityTypes.ZOMBIE
+			|| type == net.minecraft.world.entity.EntityTypes.HUSK
+			|| type == net.minecraft.world.entity.EntityTypes.DROWNED
+			|| type == net.minecraft.world.entity.EntityTypes.PIGLIN_BRUTE
+			|| type == net.minecraft.world.entity.EntityTypes.VINDICATOR
+			|| type == net.minecraft.world.entity.EntityTypes.WITHER_SKELETON
+			|| type == net.minecraft.world.entity.EntityTypes.IRON_GOLEM) return 2.5f;
+		if (entity instanceof net.minecraft.world.entity.monster.Enemy) return 3.0f;
+		return 0f;
 	}
 }

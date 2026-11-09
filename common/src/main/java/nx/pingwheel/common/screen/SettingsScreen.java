@@ -79,7 +79,9 @@ public class SettingsScreen extends OptionsSubScreen {
 
 		this.list.addSmall(getDetailDistanceOption(), getMaxSimultaneousPingsOption());
 
-		this.list.addSmall(getRulerVisibleOption(), null);
+		this.list.addSmall(getRulerVisibleOption(), getMobRadiusVisibleOption());
+
+		this.list.addSmall(getAutoDropPingOption(), null);
 
 		var syncServersBtn = net.minecraft.client.gui.components.Button.builder(
 			Component.translatable("settings.pingwheel.server_sync"),
@@ -328,6 +330,22 @@ public class SettingsScreen extends OptionsSubScreen {
 			LanguageUtils.settings("ruler_visible").getKey(),
 			config::isRulerVisible,
 			config::setRulerVisible
+		);
+	}
+
+	private OptionInstance<Boolean> getMobRadiusVisibleOption() {
+		return OptionUtils.ofBool(
+			LanguageUtils.settings("mob_radius_visible").getKey(),
+			config::isMobRadiusVisible,
+			config::setMobRadiusVisible
+		);
+	}
+
+	private OptionInstance<Boolean> getAutoDropPingOption() {
+		return OptionUtils.ofBool(
+			LanguageUtils.settings("auto_drop_ping").getKey(),
+			config::isAutoDropPing,
+			config::setAutoDropPing
 		);
 	}
 

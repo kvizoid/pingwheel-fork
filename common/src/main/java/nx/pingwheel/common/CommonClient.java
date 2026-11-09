@@ -98,7 +98,10 @@ public class CommonClient {
 		}
 	}
 
+	public static volatile WorldRenderContext LAST_WORLD_CONTEXT = null;
+
 	public void onRenderWorld(WorldRenderContext ctx) {
+		LAST_WORLD_CONTEXT = ctx;
 		PingManager.updatePings(ctx);
 		PingController.pollPingAction(ctx.tickDelta);
 	}

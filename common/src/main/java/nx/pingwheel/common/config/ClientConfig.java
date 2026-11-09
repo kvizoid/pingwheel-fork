@@ -27,6 +27,8 @@ public class ClientConfig implements IConfig {
 	List<String> syncedServers = new ArrayList<>(List.of("play.k1nggl1nt.ru"));
 	boolean coordinatesVisible = true;
 	boolean rulerVisible = true;
+	boolean mobRadiusVisible = true;
+	boolean autoDropPing = true;
 	int detailDistance = 200;
 	int maxSimultaneousPings = 5;
 
@@ -82,6 +84,12 @@ public class ClientConfig implements IConfig {
 
 	public boolean isRulerVisible() { return rulerVisible; }
 	public void setRulerVisible(boolean rulerVisible) { this.rulerVisible = rulerVisible; }
+
+	public boolean isMobRadiusVisible() { return mobRadiusVisible; }
+	public void setMobRadiusVisible(boolean mobRadiusVisible) { this.mobRadiusVisible = mobRadiusVisible; }
+
+	public boolean isAutoDropPing() { return autoDropPing; }
+	public void setAutoDropPing(boolean autoDropPing) { this.autoDropPing = autoDropPing; }
 
 	public int getDetailDistance() { return detailDistance; }
 	public void setDetailDistance(int detailDistance) { this.detailDistance = detailDistance; }

@@ -52,6 +52,8 @@
 	"pingwheel.container_unopened": "[Сундук]",
 	"pingwheel.container_more": "+ ещё %d",
 	"settings.pingwheel.ruler_visible": "3D Рулетка",
+	"settings.pingwheel.mob_radius_visible": "Радиус угрозы мобов",
+	"settings.pingwheel.auto_drop_ping": "Авто-пинг выброшенных вещей",
 	"settings.pingwheel.server_sync": "🌐 Синхронизация серверов...",
 	"settings.pingwheel.server_sync.title": "Синхронизация серверов",
 	"settings.pingwheel.server_sync.mode.global": "Глобальный (Все серверы на канале)",

@@ -78,6 +78,8 @@
 	"pingwheel.container_unopened": "[Chest]",
 	"pingwheel.container_more": "+ %d more",
 	"settings.pingwheel.ruler_visible": "3D Ruler",
+	"settings.pingwheel.mob_radius_visible": "Mob Threat Radius",
+	"settings.pingwheel.auto_drop_ping": "Auto-Ping Dropped Items",
 	"settings.pingwheel.server_sync": "🌐 Server Sync...",
 	"settings.pingwheel.server_sync.title": "Server Synchronization",
 	"settings.pingwheel.server_sync.mode.global": "Global (All servers on channel)",
