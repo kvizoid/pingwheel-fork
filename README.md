@@ -1,7 +1,9 @@
-# Ping Wheel Fork
-
-Client-side tactical pinging, 3D measurement ruler, and mob threat radar for Minecraft 26.3 (Fabric).  
-Works out of the box on any server without server-side mods.
+<div align="center">
+  <img src=".github/icon.png" width="128" height="128" alt="Ping Wheel Logo" />
+  <h1>Ping Wheel Fork</h1>
+  <p>Client-side tactical pinging, 3D measurement ruler, and mob threat radar for Minecraft 26.3 (Fabric).</p>
+  <p>Works out of the box on any server without server-side mods.</p>
+</div>
 
 ---
 
