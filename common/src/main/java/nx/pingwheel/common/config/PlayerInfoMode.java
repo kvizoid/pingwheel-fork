@@ -18,3 +18,4 @@ public enum PlayerInfoMode {
 		return super.toString().toLowerCase();
 	}
 }
+

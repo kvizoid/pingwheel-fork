@@ -48,12 +48,51 @@ public class PingView extends PingData {
 	private boolean altDimension = false;
 	private Boolean rulerOverride = null;
 
+	private final long creationTimestamp = System.currentTimeMillis();
+	private long coordAnimStartTime = 0;
+	private boolean coordAnimUp = true;
+	private String prevCoordStr = null;
+	private int prevCoordColor = 0;
+	private String currentCoordStr = null;
+	private int currentCoordColor = 0;
+
 	public boolean isAltDimension() {
 		return altDimension;
 	}
 
 	public void toggleAltDimension() {
+		toggleAltDimension(true);
+	}
+
+	public void toggleAltDimension(boolean scrollUp) {
+		if (this.currentCoordStr != null) {
+			this.prevCoordStr = this.currentCoordStr;
+			this.prevCoordColor = this.currentCoordColor;
+		}
+		this.coordAnimUp = scrollUp;
+		this.coordAnimStartTime = System.currentTimeMillis();
 		this.altDimension = !this.altDimension;
+	}
+
+	public long getCoordAnimStartTime() {
+		return coordAnimStartTime;
+	}
+
+	public boolean isCoordAnimUp() {
+		return coordAnimUp;
+	}
+
+	public String getPrevCoordStr() {
+		return prevCoordStr;
+	}
+
+	public int getPrevCoordColor() {
+		return prevCoordColor;
+	}
+
+	public void updateCurrentCoords(String str, int color) {
+		this.currentCoordStr = str;
+		this.currentCoordColor = color;
 	}
 
 	public boolean isRuler() {
@@ -88,7 +127,16 @@ public class PingView extends PingData {
 	}
 
 	public float getScale() {
-		return scale;
+		long elapsed = System.currentTimeMillis() - this.creationTimestamp;
+		if (elapsed >= 260) {
+			return scale;
+		}
+		float p = Math.clamp(elapsed / 260.0f, 0.0f, 1.0f);
+		float t = p - 1.0f;
+		float c1 = 1.70158f;
+		float c3 = c1 + 1.0f;
+		float anim = Math.max(0.01f, 1.0f + c3 * t * t * t + c1 * t * t);
+		return scale * anim;
 	}
 
 	public PlayerInfo getTargetPlayerInfo() {
@@ -325,3 +373,4 @@ public class PingView extends PingData {
 		this.scale = (float)Math.max(1.0, scale) * 0.5f * pingSize;
 	}
 }
+

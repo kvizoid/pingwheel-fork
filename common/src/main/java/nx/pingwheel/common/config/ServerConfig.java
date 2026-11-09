@@ -34,3 +34,4 @@ public class ServerConfig implements IConfig {
 
 	public static final ConfigHandler<ServerConfig> HANDLER = ConfigHandler.of(ServerConfig.class, ".server.json");
 }
+

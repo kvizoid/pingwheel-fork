@@ -21,3 +21,4 @@ public class PlatformClientEventServiceImpl implements IPlatformClientEventServi
 		ClientPlayConnectionEvents.DISCONNECT.register((a, b) -> callback.run());
 	}
 }
+

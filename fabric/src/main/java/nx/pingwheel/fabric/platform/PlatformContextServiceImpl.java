@@ -38,3 +38,4 @@ public class PlatformContextServiceImpl implements IPlatformContextService {
 		return FabricLoader.getInstance().isModLoaded(modId);
 	}
 }
+

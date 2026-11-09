@@ -35,3 +35,4 @@ public class ResourceReloadListener implements PreparableReloadListener {
 			.thenAcceptAsync((ignored) -> {}, applyExecutor);
 	}
 }
+

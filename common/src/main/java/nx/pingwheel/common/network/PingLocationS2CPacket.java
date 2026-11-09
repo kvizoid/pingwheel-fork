@@ -73,3 +73,4 @@ public record PingLocationS2CPacket(String channel, Vec3 pos, UUID entity, int s
 		return PACKET_TYPE;
 	}
 }
+

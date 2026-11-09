@@ -221,7 +221,7 @@ public class RelayClient implements WebSocket.Listener {
 				return;
 			}
 
-			// Don't replay our own ping if we already rendered it
+
 			UUID author = null;
 			if (obj.has("author") && !obj.get("author").isJsonNull()) {
 				author = UUID.fromString(obj.get("author").getAsString());
@@ -233,7 +233,7 @@ public class RelayClient implements WebSocket.Listener {
 				return;
 			}
 
-			// Verify server: check cross-server sync, exact server match, synced server list, or online players list
+
 			boolean sameServer = false;
 			var clientConfig = nx.pingwheel.common.config.ClientConfig.HANDLER.getConfig();
 
@@ -306,3 +306,4 @@ public class RelayClient implements WebSocket.Listener {
 		scheduleReconnect();
 	}
 }
+

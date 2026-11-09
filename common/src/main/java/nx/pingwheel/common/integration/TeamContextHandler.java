@@ -46,3 +46,4 @@ public class TeamContextHandler {
 		return p1.getTeam() == p2.getTeam();
 	}
 }
+

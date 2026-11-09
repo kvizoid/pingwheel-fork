@@ -29,3 +29,4 @@ public class VoiceChatWrapper {
 		return Optional.of(voiceChatGroup.getId());
 	}
 }
+

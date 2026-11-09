@@ -28,11 +28,10 @@ public class ClientConfig implements IConfig {
 	boolean coordinatesVisible = true;
 	boolean rulerVisible = true;
 	boolean mobRadiusVisible = true;
-	boolean autoDropPing = true;
 	int detailDistance = 200;
 	int maxSimultaneousPings = 5;
 
-	// hidden from the settings screen
+
 	int removeRadius = 10;
 	int raycastDistance = 1024;
 	int safeZoneLeft = 5;
@@ -87,9 +86,6 @@ public class ClientConfig implements IConfig {
 
 	public boolean isMobRadiusVisible() { return mobRadiusVisible; }
 	public void setMobRadiusVisible(boolean mobRadiusVisible) { this.mobRadiusVisible = mobRadiusVisible; }
-
-	public boolean isAutoDropPing() { return autoDropPing; }
-	public void setAutoDropPing(boolean autoDropPing) { this.autoDropPing = autoDropPing; }
 
 	public int getDetailDistance() { return detailDistance; }
 	public void setDetailDistance(int detailDistance) { this.detailDistance = detailDistance; }
@@ -200,3 +196,4 @@ public class ClientConfig implements IConfig {
 
 	public static final ConfigHandler<ClientConfig> HANDLER = ConfigHandler.of(ClientConfig.class, ".json");
 }
+

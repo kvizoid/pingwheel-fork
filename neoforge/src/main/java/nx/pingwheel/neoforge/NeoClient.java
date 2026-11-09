@@ -25,12 +25,10 @@ public class NeoClient {
 
 		NeoForge.EVENT_BUS.register(this);
 
-		// packets are registered in Main class
 
-		// resource reload
 		modBus.addListener((AddClientReloadListenersEvent event) -> event.addListener(RELOAD_LISTENER_ID, new ResourceReloadListener()));
 
-		// config screen
+
 		ModLoadingContext
 			.get()
 			.registerExtensionPoint(
@@ -50,3 +48,4 @@ public class NeoClient {
 		}));
 	}
 }
+

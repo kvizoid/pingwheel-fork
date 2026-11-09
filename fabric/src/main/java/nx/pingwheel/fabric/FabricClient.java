@@ -31,17 +31,17 @@ public class FabricClient implements ClientModInitializer {
 
 		Registry.register(BuiltInRegistries.SOUND_EVENT, PING_SOUND_ID, PING_SOUND_EVENT);
 
-		// packets
+
 		ClientPlayNetworking.registerGlobalReceiver(
 			PingLocationS2CPacket.PACKET_TYPE,
 			(packet, context)
 				-> CommonClient.INSTANCE.onPingLocationPacket(packet)
 		);
 
-		// resource reload
+
 		ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(RELOAD_LISTENER_ID, new ResourceReloadListener());
 
-		// commands
+
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(ClientCommandBuilder.build((context, success, response) -> {
 				if (success) {
@@ -53,3 +53,4 @@ public class FabricClient implements ClientModInitializer {
 		});
 	}
 }
+

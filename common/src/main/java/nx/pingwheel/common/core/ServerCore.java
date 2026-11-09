@@ -58,7 +58,7 @@ public class ServerCore {
 		if (SERVER_CONFIG.getRateLimit() > 0 && rateLimiter.checkExceeded()) {
 			return;
 		}
-		
+
 		final var channel = packet.channel();
 		final var defaultChannelMode = SERVER_CONFIG.getDefaultChannelMode();
 
@@ -118,3 +118,4 @@ public class ServerCore {
 		}
 	}
 }
+

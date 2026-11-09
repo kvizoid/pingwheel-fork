@@ -13,3 +13,4 @@ public class PlatformServerEventServiceImpl implements IPlatformServerEventServi
 		ServerPlayConnectionEvents.DISCONNECT.register((networkHandler, a) -> callback.accept(networkHandler.player));
 	}
 }
+

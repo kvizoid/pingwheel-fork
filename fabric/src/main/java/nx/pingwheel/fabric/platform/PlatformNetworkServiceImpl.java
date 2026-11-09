@@ -32,10 +32,10 @@ public class PlatformNetworkServiceImpl implements IPlatformNetworkService {
 		if (packet instanceof PingLocationC2SPacket c2s) {
 			UUID author = (Game != null && Game.player != null) ? Game.player.getUUID() : UUID.randomUUID();
 
-			// Send to VPS Relay for friends
+
 			RelayClient.INSTANCE.sendPing(c2s, author);
 
-			// Render locally for sender immediately
+
 			var s2c = PingLocationS2CPacket.fromClientPacket(c2s, author);
 			if (Game != null) {
 				Game.execute(() -> CommonClient.INSTANCE.onPingLocationPacket(s2c));
@@ -52,3 +52,4 @@ public class PlatformNetworkServiceImpl implements IPlatformNetworkService {
 		ServerPlayNetworking.send(player, packet);
 	}
 }
+

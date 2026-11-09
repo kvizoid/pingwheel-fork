@@ -19,8 +19,7 @@ import static nx.pingwheel.common.Global.MOD_ID;
 import static nx.pingwheel.common.util.InputUtils.KEY_BINDING_PING;
 import static nx.pingwheel.common.util.InputUtils.KEY_BINDING_SETTINGS;
 
-// TODO: remove this class a few versions/months down the line
-// introduced with 1.12.0 on 09.10.2025
+
 @SuppressWarnings("StringConcatenationArgumentToLogCall")
 public class LegacyMigrationHandler {
 
@@ -116,3 +115,4 @@ public class LegacyMigrationHandler {
 		}
 	}
 }
+

@@ -35,3 +35,4 @@ public class InputUtils {
 		return isMiss && Game.options.keyPickItem.consumeClick();
 	}
 }
+

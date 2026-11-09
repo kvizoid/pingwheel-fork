@@ -68,7 +68,7 @@ public class PingController {
 			return;
 		}
 
-		// 1. Dedicated self-ping hotkey OR Shift + looking down
+
 		if (forceSelf || (cameraEntity.isCrouching() && cameraEntity.getXRot() > 50f)) {
 			doSelfPing(cameraEntity);
 			return;
@@ -114,3 +114,4 @@ public class PingController {
 		);
 	}
 }
+

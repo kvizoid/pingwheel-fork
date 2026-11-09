@@ -28,7 +28,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 
 	@Override
 	protected void addOptions() {
-		// 1. Cross-Server Sync Mode Button
+
 		boolean isGlobal = config.isCrossServerSync();
 		Component modeText = Component.translatable(isGlobal
 			? "settings.pingwheel.server_sync.mode.global"
@@ -49,7 +49,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 
 		this.list.addBig(toggleBtn);
 
-		// 2. Add server section
+
 		this.list.addHeader(Component.translatable("settings.pingwheel.server_sync.add_header").withStyle(ChatFormatting.YELLOW));
 
 		this.serverInput = new EditBox(this.font, 0, 0, 205, 20, Component.translatable("settings.pingwheel.server_sync.input_label"));
@@ -75,7 +75,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 
 		this.list.addSmall(this.serverInput, addBtn);
 
-		// 3. Quick-add current server button (if playing on a multiplayer server)
+
 		var currentIpOpt = GameContext.getCurrentServerIp();
 		if (currentIpOpt.isPresent()) {
 			String currentIp = currentIpOpt.get();
@@ -94,7 +94,7 @@ public class ServerSyncScreen extends OptionsSubScreen {
 			}
 		}
 
-		// 4. List of synced servers
+
 		List<String> servers = config.getSyncedServers();
 		this.list.addHeader(Component.translatable("settings.pingwheel.server_sync.linked_header", servers.size()).withStyle(ChatFormatting.AQUA));
 
@@ -144,3 +144,4 @@ public class ServerSyncScreen extends OptionsSubScreen {
 		}
 	}
 }
+

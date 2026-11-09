@@ -30,3 +30,4 @@ public class ScreenPos {
 		return this.x >= topLeft.x && this.x <= bottomRight.x && this.y >= topLeft.y && this.y <= bottomRight.y;
 	}
 }
+

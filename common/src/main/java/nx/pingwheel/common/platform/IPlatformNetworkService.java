@@ -14,3 +14,4 @@ public interface IPlatformNetworkService {
 	void sendToServer(IPacket packet);
 	void sendToClient(IPacket packet, ServerPlayer player);
 }
+

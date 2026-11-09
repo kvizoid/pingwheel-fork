@@ -11,3 +11,4 @@ public class ModMenuIntegration implements ModMenuApi {
 		return SettingsScreen::new;
 	}
 }
+

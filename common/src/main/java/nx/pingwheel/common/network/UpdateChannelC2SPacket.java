@@ -40,3 +40,4 @@ public record UpdateChannelC2SPacket(String channel) implements IPacket {
 		return PACKET_TYPE;
 	}
 }
+

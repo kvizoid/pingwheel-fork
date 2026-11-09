@@ -17,3 +17,4 @@ public interface IPlatformContextService {
 	void registerKeyMapping(KeyMapping keyMapping);
 	boolean isModLoaded(String modId);
 }
+

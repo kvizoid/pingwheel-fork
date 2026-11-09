@@ -13,3 +13,4 @@ public interface IPlatformServerEventService {
 
 	void registerPlayerLogoutEvent(Consumer<ServerPlayer> callback);
 }
+

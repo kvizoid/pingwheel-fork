@@ -204,3 +204,4 @@ public class UpdateManager {
 		return false;
 	}
 }
+

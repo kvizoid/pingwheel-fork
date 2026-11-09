@@ -11,3 +11,4 @@ public class WorldRenderContext {
 	public final Float tickDelta;
 	public final CameraRenderState camera;
 }
+

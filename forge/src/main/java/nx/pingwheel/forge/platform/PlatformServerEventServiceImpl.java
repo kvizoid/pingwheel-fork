@@ -13,3 +13,4 @@ public class PlatformServerEventServiceImpl implements IPlatformServerEventServi
 		PlayerEvent.PlayerLoggedOutEvent.BUS.addListener((event) -> callback.accept((ServerPlayer)event.getEntity()));
 	}
 }
+

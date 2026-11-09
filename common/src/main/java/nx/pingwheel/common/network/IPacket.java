@@ -9,3 +9,4 @@ public interface IPacket extends CustomPacketPayload {
 	boolean isCorrupt();
 	Identifier getId();
 }
+

@@ -21,3 +21,4 @@ public class PlatformClientEventServiceImpl implements IPlatformClientEventServi
 		ClientPlayerNetworkEvent.LoggingOut.BUS.addListener((event) -> callback.run());
 	}
 }
+

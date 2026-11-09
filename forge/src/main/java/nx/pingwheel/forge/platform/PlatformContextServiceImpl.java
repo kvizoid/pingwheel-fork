@@ -41,3 +41,4 @@ public class PlatformContextServiceImpl implements IPlatformContextService {
 		return ModList.isLoaded(modId);
 	}
 }
+

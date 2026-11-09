@@ -57,7 +57,6 @@ public class LanguageUtils {
 			.append(Component.literal(")"));
 	}
 
-	/* Component modifiers */
 
 	public static MutableComponent join(MutableComponent... components) {
 		var output = Component.empty();
@@ -85,3 +84,4 @@ public class LanguageUtils {
 		return Component.literal(String.format("%s", any));
 	}
 }
+

@@ -25,7 +25,7 @@ public abstract class MouseHandlerMixin {
 			&& Math.abs(vertical) > 0.01) {
 			var hovered = PingManager.getHoveredPing();
 			if (hovered != null) {
-				hovered.toggleAltDimension();
+				hovered.toggleAltDimension(vertical > 0);
 				try {
 					nx.pingwheel.common.CommonClient.Game.getSoundManager().play(
 						SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.6f)
@@ -36,3 +36,4 @@ public abstract class MouseHandlerMixin {
 		}
 	}
 }
+

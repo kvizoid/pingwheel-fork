@@ -76,10 +76,14 @@ public class DrawContext {
 	public void renderPlayerHead(PlayerInfo player) {
 		var texture = player.getSkin().body().texturePath();
 		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 8, 8, 8, 8, 64, 64);
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 40, 8, 8, 8, 64, 64); // Overlay (hat)
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, 0, 0, 40, 8, 8, 8, 64, 64);
 	}
 
 	public void renderInlinePing(Component leftText, Component rightText, PlayerInfo player, ItemStack itemStack, boolean drawItemIcon, int pingColor, int leftColor, int rightColor) {
+		renderInlinePing(leftText, rightText, player, itemStack, drawItemIcon, pingColor, leftColor, rightColor, null);
+	}
+
+	public void renderInlinePing(Component leftText, Component rightText, PlayerInfo player, ItemStack itemStack, boolean drawItemIcon, int pingColor, int leftColor, int rightColor, nx.pingwheel.common.core.PingView ping) {
 		boolean isItem = (itemStack != null && drawItemIcon);
 		int iconHalf = isItem ? 8 : 3;
 		int iconWidth = isItem ? 16 : 6;
@@ -88,7 +92,19 @@ public class DrawContext {
 
 		int extraLeft = player != null ? 10 : 0;
 		int leftWidth = Game.font.width(leftText) + extraLeft;
-		int rightWidth = rightText != null ? Game.font.width(rightText) : 0;
+
+		long elapsed = (ping != null && ping.getPrevCoordStr() != null) ? (System.currentTimeMillis() - ping.getCoordAnimStartTime()) : 9999;
+		boolean isAnimating = (elapsed < 320);
+
+		int rightWidth;
+		if (isAnimating) {
+			float p = Math.clamp(elapsed / 320.0f, 0.0f, 1.0f);
+			int prevW = Game.font.width(ping.getPrevCoordStr());
+			int curW = rightText != null ? Game.font.width(rightText) : 0;
+			rightWidth = (int)(prevW + (curW - prevW) * p);
+		} else {
+			rightWidth = rightText != null ? Game.font.width(rightText) : 0;
+		}
 
 		int contentWidth = leftWidth + gap + iconWidth + (rightText != null ? (gap + rightWidth) : 0);
 		int halfWidth = (contentWidth / 2) + 4;
@@ -98,7 +114,6 @@ public class DrawContext {
 		int startX = -contentWidth / 2;
 		float textY = -3.5f;
 
-		// 1. Left text (Distance)
 		guiGraphics.text(Game.font, leftText, startX + extraLeft, (int)textY, leftColor, false);
 		if (player != null) {
 			matrices.pushMatrix();
@@ -107,17 +122,41 @@ public class DrawContext {
 			matrices.popMatrix();
 		}
 
-		// 2. Icon (Diamond) placed tightly between left and right text
 		int iconCenterX = startX + leftWidth + gap + iconHalf;
 		matrices.pushMatrix();
 		matrices.translate(iconCenterX, 0);
 		renderPing(itemStack, drawItemIcon, pingColor);
 		matrices.popMatrix();
 
-		// 3. Right text (Coordinates)
 		if (rightText != null) {
 			int rightStartX = startX + leftWidth + gap + iconWidth + gap;
-			guiGraphics.text(Game.font, rightText, rightStartX, (int)textY, rightColor, false);
+			if (isAnimating) {
+				float p = Math.clamp(elapsed / 320.0f, 0.0f, 1.0f);
+				float t = p - 1.0f;
+				float c1 = 1.70158f;
+				float c3 = c1 + 1.0f;
+				float eased = 1.0f + c3 * t * t * t + c1 * t * t;
+
+				float travel = 13.0f;
+				float dir = ping.isCoordAnimUp() ? 1.0f : -1.0f;
+
+				int prevAlpha = (int)(Math.clamp(1.0f - p * 1.5f, 0.0f, 1.0f) * 255);
+				if (prevAlpha > 4) {
+					int pColor = ping.getPrevCoordColor();
+					int col = ARGB.color(prevAlpha, ARGB.red(pColor), ARGB.green(pColor), ARGB.blue(pColor));
+					float oldY = textY - dir * travel * eased;
+					guiGraphics.text(Game.font, ping.getPrevCoordStr(), rightStartX, (int)oldY, col, false);
+				}
+
+				int nextAlpha = (int)(Math.clamp(p * 1.5f, 0.0f, 1.0f) * 255);
+				if (nextAlpha > 4) {
+					int col = ARGB.color(nextAlpha, ARGB.red(rightColor), ARGB.green(rightColor), ARGB.blue(rightColor));
+					float newY = textY + dir * travel * (1.0f - eased);
+					guiGraphics.text(Game.font, rightText, rightStartX, (int)newY, col, false);
+				}
+			} else {
+				guiGraphics.text(Game.font, rightText, rightStartX, (int)textY, rightColor, false);
+			}
 		}
 	}
 
@@ -217,3 +256,4 @@ public class DrawContext {
 		matrices.popMatrix();
 	}
 }
+

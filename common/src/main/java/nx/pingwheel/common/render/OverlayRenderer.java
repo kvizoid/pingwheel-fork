@@ -106,16 +106,16 @@ public class OverlayRenderer {
 				continue;
 			}
 
-			// 2D clipping against visible screen bounds: eliminates any off-screen lag or huge loops!
+
 			float[] clipped = nx.pingwheel.common.math.MathUtils.clipLine(s1.x, s1.y, s2.x, s2.y, -margin, -margin, screenW + margin, screenH + margin);
 			if (clipped == null) {
 				continue;
 			}
 
-			// Ultra-thin 1px dashed white hairline underneath all pings and text
+
 			ctx.renderDashedLine(clipped[0], clipped[1], clipped[2], clipped[3], 1.0f, 4.0f, 3.0f, 0x75FFFFFF);
 
-			// Minimalist anchor ticks at endpoints
+
 			if (s1.x >= 0 && s1.x <= screenW && s1.y >= 0 && s1.y <= screenH) {
 				ctx.getGuiGraphics().fill((int)s1.x - 1, (int)s1.y - 1, (int)s1.x + 2, (int)s1.y + 2, 0x90FFFFFF);
 			}
@@ -195,23 +195,12 @@ public class OverlayRenderer {
 
 			int activeDims = (sx > 1 ? 1 : 0) + (sy > 1 ? 1 : 0) + (sz > 1 ? 1 : 0);
 
-			double realDist = p1.getPos().distanceTo(p2.getPos());
 			String mainStr;
-			String subStr;
 
 			if (activeDims <= 1) {
-				// 1D line along an axis (inclusive block count)
 				int totalBlocks = Math.max(sx, Math.max(sy, sz));
 				mainStr = totalBlocks + " б";
-
-				int innerGap = Math.max(0, totalBlocks - 2);
-				if (totalBlocks <= 2) {
-					subStr = String.format(java.util.Locale.ROOT, "%.1f м", realDist);
-				} else {
-					subStr = String.format(java.util.Locale.ROOT, "просвет: %d б • %.1f м", innerGap, realDist);
-				}
 			} else if (activeDims == 2) {
-				// 2D plane (floor, ceiling, wall)
 				int d1, d2;
 				if (sy == 1) {
 					d1 = sx;
@@ -224,13 +213,8 @@ public class OverlayRenderer {
 					d2 = sy;
 				}
 				mainStr = d1 + " × " + d2 + " б";
-				long area = (long)d1 * d2;
-				subStr = String.format(java.util.Locale.ROOT, "S = %d б² • %.1f м", area, realDist);
 			} else {
-				// 3D volume
 				mainStr = sx + " × " + sy + " × " + sz + " б";
-				long volume = (long)sx * sy * sz;
-				subStr = String.format(java.util.Locale.ROOT, "V = %d б³ • %.1f м", volume, realDist);
 			}
 
 			boolean isHovered = Math.hypot(cx - midX, cy - midY) < 32.0;
@@ -243,23 +227,13 @@ public class OverlayRenderer {
 			m.scale(0.85f, 0.85f);
 
 			int textWidth = Game.font.width(badgeText);
-			int shadowColor = net.minecraft.util.ARGB.color(160, 0, 0, 0);
+			int shadowColor = isHovered ? net.minecraft.util.ARGB.color(100, 16, 21, 32) : net.minecraft.util.ARGB.color(64, 0, 0, 0);
+			int textColor = isHovered ? 0xFFFFFFFF : net.minecraft.util.ARGB.color(200, 241, 245, 249);
+			int halfWidth = (textWidth / 2) + 4;
+			int padY = 6;
 
-			if (isHovered) {
-				var subComponent = net.minecraft.network.chat.Component.literal(subStr).withStyle(net.minecraft.ChatFormatting.GRAY);
-				int subWidth = Game.font.width(subComponent);
-				int maxWidth = Math.max(textWidth, subWidth);
-				int halfWidth = (maxWidth / 2) + 4;
-
-				ctx.getGuiGraphics().fill(-halfWidth, -9, halfWidth, 9, shadowColor);
-				ctx.getGuiGraphics().text(Game.font, badgeText, -textWidth / 2, -8, 0xFFFFFFFF, false);
-				ctx.getGuiGraphics().text(Game.font, subComponent, -subWidth / 2, 1, 0xFF94A3B8, false);
-			} else {
-				int halfWidth = (textWidth / 2) + 3;
-				int padY = 4;
-				ctx.getGuiGraphics().fill(-halfWidth, -padY, halfWidth, padY, shadowColor);
-				ctx.getGuiGraphics().text(Game.font, badgeText, -textWidth / 2, -3, 0xFFFFFFFF, false);
-			}
+			ctx.getGuiGraphics().fill(-halfWidth, -padY, halfWidth, padY, shadowColor);
+			ctx.getGuiGraphics().text(Game.font, badgeText, -textWidth / 2, -3, textColor, false);
 
 			m.popMatrix();
 		}
@@ -293,12 +267,34 @@ public class OverlayRenderer {
 			int segments = 32;
 			int circleColor = 0x85FFA8A8;
 
+			var camPos = worldCtx.camera.pos;
+			var mobBox = ent.getBoundingBox().inflate(0.08);
+
 			for (int i = 0; i < segments; i++) {
 				double a1 = (i * 2.0 * Math.PI) / segments;
 				double a2 = ((i + 1) * 2.0 * Math.PI) / segments;
 
 				Vec3 p1 = new Vec3(cx + radius * Math.cos(a1), cy, cz + radius * Math.sin(a1));
 				Vec3 p2 = new Vec3(cx + radius * Math.cos(a2), cy, cz + radius * Math.sin(a2));
+
+				Vec3 mid = p1.add(p2).scale(0.5);
+
+				if (mobBox.clip(camPos, mid).isPresent() || mobBox.clip(camPos, p1).isPresent() || mobBox.clip(camPos, p2).isPresent()) {
+					continue;
+				}
+
+				var blockHit = Game.level.clip(new net.minecraft.world.level.ClipContext(
+					camPos,
+					mid,
+					net.minecraft.world.level.ClipContext.Block.COLLIDER,
+					net.minecraft.world.level.ClipContext.Fluid.NONE,
+					ent
+				));
+				if (blockHit.getType() != net.minecraft.world.phys.HitResult.Type.MISS) {
+					if (blockHit.getLocation().distanceToSqr(camPos) < mid.distanceToSqr(camPos) - 0.25) {
+						continue;
+					}
+				}
 
 				var s1 = MathUtils.worldToScreen(p1, worldCtx);
 				var s2 = MathUtils.worldToScreen(p2, worldCtx);
@@ -338,3 +334,4 @@ public class OverlayRenderer {
 		return 0f;
 	}
 }
+

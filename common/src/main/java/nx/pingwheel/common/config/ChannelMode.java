@@ -18,3 +18,4 @@ public enum ChannelMode {
 		return super.toString().toLowerCase();
 	}
 }
+

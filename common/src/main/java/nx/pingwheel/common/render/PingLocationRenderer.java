@@ -85,8 +85,9 @@ public class PingLocationRenderer {
 
 			var rightText = Component.literal(targetX + " " + targetY + " " + targetZ);
 			int coordsColor = isNetherCoords ? NETHER_COLOR : OVERWORLD_COLOR;
+			ping.updateCurrentCoords(rightText.getString(), coordsColor);
 
-			ctx.renderInlinePing(leftText, rightText, compactPlayerInfo, ping.getItemStack(), CLIENT_CONFIG.isItemIconVisible(), pingColor, distanceColor, coordsColor);
+			ctx.renderInlinePing(leftText, rightText, compactPlayerInfo, ping.getItemStack(), CLIENT_CONFIG.isItemIconVisible(), pingColor, distanceColor, coordsColor, ping);
 		} else {
 			Component distanceText;
 			if (isDetailed) {
@@ -143,3 +144,4 @@ public class PingLocationRenderer {
 		m.popMatrix();
 	}
 }
+

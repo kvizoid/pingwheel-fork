@@ -30,3 +30,4 @@ public class PlatformNetworkServiceImpl implements IPlatformNetworkService {
 		PacketDistributor.sendToPlayer(player, packet);
 	}
 }
+

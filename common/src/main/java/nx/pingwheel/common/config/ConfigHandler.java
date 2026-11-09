@@ -94,3 +94,4 @@ public class ConfigHandler <T extends IConfig> {
 		LOGGER.info("Loaded " + config);
 	}
 }
+

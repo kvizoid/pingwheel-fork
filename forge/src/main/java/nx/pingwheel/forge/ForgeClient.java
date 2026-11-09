@@ -27,13 +27,13 @@ public class ForgeClient {
 
 		this.context = context;
 
-		// packets
+
 		registerPacketHandler(PING_LOCATION_CHANNEL_S2C, PingLocationS2CPacket::readSafe, CommonClient.INSTANCE::onPingLocationPacket);
 
-		// resource reload
+
 		RegisterClientReloadListenersEvent.BUS.addListener((event) -> event.registerReloadListener(new ResourceReloadListener()));
 
-		// commands
+
 		RegisterClientCommandsEvent.BUS.addListener((event) -> {
 			event.getDispatcher().register(ClientCommandBuilder.build((ctx, success, response) -> {
 				if (success) {
@@ -44,7 +44,7 @@ public class ForgeClient {
 			}));
 		});
 
-		// config screen
+
 		this.context.registerExtensionPoint(
 			ConfigScreenHandler.ConfigScreenFactory.class,
 			() -> new ConfigScreenHandler.ConfigScreenFactory((client, parent) -> new SettingsScreen(parent))
@@ -65,3 +65,4 @@ public class ForgeClient {
 		});
 	}
 }
+

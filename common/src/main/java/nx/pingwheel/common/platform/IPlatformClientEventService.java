@@ -12,3 +12,4 @@ public interface IPlatformClientEventService {
 	void registerJoinServerEvent(Runnable callback);
 	void registerLeaveServerEvent(Runnable callback);
 }
+

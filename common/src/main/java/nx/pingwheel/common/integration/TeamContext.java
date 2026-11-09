@@ -8,3 +8,4 @@ public enum TeamContext {
 		return super.toString().toLowerCase();
 	}
 }
+

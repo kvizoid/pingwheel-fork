@@ -49,3 +49,4 @@ public class FabricMain implements ModInitializer {
 		});
 	}
 }
+

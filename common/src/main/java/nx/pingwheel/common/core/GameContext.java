@@ -62,3 +62,4 @@ public class GameContext {
 		return Optional.of(currenServer.ip);
 	}
 }
+

@@ -4,3 +4,4 @@ public interface IConfig {
 	void validate();
 	void onUpdate();
 }
+

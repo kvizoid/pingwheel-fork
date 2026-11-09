@@ -47,14 +47,14 @@ public class MathUtils {
 
 		if (Math.abs(direction.x) < Math.abs(direction.y)) {
 			if (direction.y < 0) {
-				// top
+
 				var t = -cy / dy;
 				var x = cx + t * dx;
 
 				return new Vec2((float)x + leftTop.x, leftTop.y);
 			}
 
-			// bottom
+
 			var t = cy / dy;
 			var x = cx + t * dx;
 
@@ -62,14 +62,14 @@ public class MathUtils {
 		}
 
 		if (direction.x < 0) {
-			// left
+
 			var t = -cx / dx;
 			var y = cy + t * dy;
 
 			return new Vec2(leftTop.x, (float)y + leftTop.y);
 		}
 
-		// right
+
 		var t = cx / dx;
 		var y = cy + t * dy;
 
@@ -143,3 +143,4 @@ public class MathUtils {
 		return null;
 	}
 }
+

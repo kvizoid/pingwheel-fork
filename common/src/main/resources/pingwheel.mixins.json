@@ -8,8 +8,7 @@
 		"GuiMixin",
 		"MouseHandlerMixin",
 		"MultiPlayerGameModeMixin",
-		"AbstractContainerScreenMixin",
-		"ClientLevelMixin"
+		"AbstractContainerScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

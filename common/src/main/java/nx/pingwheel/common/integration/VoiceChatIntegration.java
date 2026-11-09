@@ -35,3 +35,4 @@ public class VoiceChatIntegration implements VoicechatPlugin {
 		clientApi = event.getVoicechat();
 	}
 }
+

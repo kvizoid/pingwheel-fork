@@ -18,3 +18,4 @@ public enum TeamColorMode {
 		return super.toString().toLowerCase();
 	}
 }
+

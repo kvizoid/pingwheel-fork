@@ -13,3 +13,4 @@ public class ResourceConstants {
 	public static final Identifier PING_TEXTURE_ID = Identifier.fromNamespaceAndPath(MOD_ID, "textures/ping.png");
 	public static final Identifier ARROW_TEXTURE_ID = Identifier.fromNamespaceAndPath(MOD_ID, "textures/arrow.png");
 }
+
