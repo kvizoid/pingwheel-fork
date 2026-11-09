@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Release tag to attach jars to (e.g. v1.1.5)"
+        description: "Release tag to attach jars to (e.g. v1.1.6)"
         required: false
-        default: "v1.1.5"
+        default: "v1.1.6"
   release:
     types: [published]
 

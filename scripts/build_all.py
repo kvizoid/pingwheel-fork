@@ -22,7 +22,7 @@ def run_cmd(cmd, cwd=None, check=True):
     return res
 
 def cmd_trigger(args):
-    tag = args.tag or "v1.1.5"
+    tag = args.tag or "v1.1.6"
     print(f"\033[32mTriggering GitHub Actions build for all Minecraft versions ({', '.join(BRANCH_MATRIX.keys())})...\033[0m")
     run_cmd(["gh", "workflow", "run", "build-all.yml", "-f", f"release_tag={tag}"])
     print(f"\033[32mWorkflow triggered successfully! Monitoring runs...\033[0m")
@@ -94,7 +94,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     p_trigger = subparsers.add_parser("trigger", help="Trigger GitHub Actions build matrix across all MC versions")
-    p_trigger.add_argument("--tag", "-t", default="v1.1.5", help="Release tag to attach jars to (default: v1.1.5)")
+    p_trigger.add_argument("--tag", "-t", default="v1.1.6", help="Release tag to attach jars to (default: v1.1.6)")
     p_trigger.set_defaults(func=cmd_trigger)
 
     p_status = subparsers.add_parser("status", help="Check status of GitHub Actions workflow runs")
