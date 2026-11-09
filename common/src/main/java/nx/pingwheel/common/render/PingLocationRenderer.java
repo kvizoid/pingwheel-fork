@@ -104,31 +104,38 @@ public class PingLocationRenderer {
 				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, ping.getTargetPlayerInfo(), null, WHITE);
 			} else if (ping.getTargetEntityName() != null) {
 				ctx.renderLabel(ping.getTargetEntityName(), entityYOffset, null, ping.getTargetEntityIcon(), WHITE);
-			} else if (ping.getPos() != null) {
-				var bPos = net.minecraft.core.BlockPos.containing(ping.getPos().x, ping.getPos().y, ping.getPos().z);
-				var snapshot = nx.pingwheel.common.core.ContainerMemoryManager.get(bPos);
-				if (snapshot != null) {
-					ctx.renderLabel(snapshot.formatSummary(), entityYOffset, null, WHITE);
-				} else if (Game.level != null) {
-					var state = Game.level.getBlockState(bPos);
-					var blk = state.getBlock();
-					if (blk instanceof net.minecraft.world.level.block.ChestBlock
-						|| blk instanceof net.minecraft.world.level.block.BarrelBlock
-						|| blk instanceof net.minecraft.world.level.block.ShulkerBoxBlock) {
-						var unopenedText = Component.literal("📦 ").withStyle(ChatFormatting.GOLD)
-							.append(Component.translatable("pingwheel.container_unopened").withStyle(ChatFormatting.GRAY));
-						ctx.renderLabel(unopenedText, entityYOffset, null, WHITE);
+			} else {
+				boolean renderedContainer = false;
+				if (ping.getPos() != null && Game.level != null) {
+					var bPos = net.minecraft.core.BlockPos.containing(ping.getPos().x, ping.getPos().y, ping.getPos().z);
+					var snapshot = nx.pingwheel.common.core.ContainerMemoryManager.get(bPos);
+					if (snapshot != null) {
+						ctx.renderLabel(snapshot.formatSummary(), entityYOffset, null, WHITE);
+						renderedContainer = true;
+					} else if (Game.level.hasChunkAt(bPos)) {
+						var state = Game.level.getBlockState(bPos);
+						var blk = state.getBlock();
+						if (blk instanceof net.minecraft.world.level.block.ChestBlock
+							|| blk instanceof net.minecraft.world.level.block.BarrelBlock
+							|| blk instanceof net.minecraft.world.level.block.ShulkerBoxBlock) {
+							var unopenedText = Component.literal("📦 ").withStyle(ChatFormatting.GOLD)
+								.append(Component.translatable("pingwheel.container_unopened").withStyle(ChatFormatting.GRAY));
+							ctx.renderLabel(unopenedText, entityYOffset, null, WHITE);
+							renderedContainer = true;
+						}
 					}
 				}
-			} else {
-				final var isPlayerListHeld = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.HOLD && Game.options.keyPlayerList.isDown();
-				final var showVerbosePlayerInfo = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.ALWAYS || isPlayerListHeld;
 
-				if (showVerbosePlayerInfo && author != null) {
-					var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().name()));
-					if (!labelUseTeamColor) displayName = displayName.withStyle(ChatFormatting.RESET);
+				if (!renderedContainer) {
+					final var isPlayerListHeld = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.HOLD && Game.options.keyPlayerList.isDown();
+					final var showVerbosePlayerInfo = CLIENT_CONFIG.getPlayerInfoMode() == PlayerInfoMode.ALWAYS || isPlayerListHeld;
 
-					ctx.renderLabel(displayName, entityYOffset, author, null, WHITE);
+					if (showVerbosePlayerInfo && author != null) {
+						var displayName = PlayerTeam.formatNameForTeam(author.getTeam(), Component.literal(author.getProfile().name()));
+						if (!labelUseTeamColor) displayName = displayName.withStyle(ChatFormatting.RESET);
+
+						ctx.renderLabel(displayName, entityYOffset, author, null, WHITE);
+					}
 				}
 			}
 		}

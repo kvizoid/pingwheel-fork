@@ -79,15 +79,15 @@ public class MathUtils {
 	private static final int CLIP_INSIDE = 0;
 	private static final int CLIP_LEFT = 1;
 	private static final int CLIP_RIGHT = 2;
-	private static final int CLIP_BOTTOM = 4;
-	private static final int CLIP_TOP = 8;
+	private static final int CLIP_TOP = 4;
+	private static final int CLIP_BOTTOM = 8;
 
 	private static int computeOutCode(float x, float y, float minX, float minY, float maxX, float maxY) {
 		int code = CLIP_INSIDE;
 		if (x < minX) code |= CLIP_LEFT;
 		else if (x > maxX) code |= CLIP_RIGHT;
-		if (y < minY) code |= CLIP_BOTTOM;
-		else if (y > maxY) code |= CLIP_TOP;
+		if (y < minY) code |= CLIP_TOP;
+		else if (y > maxY) code |= CLIP_BOTTOM;
 		return code;
 	}
 
@@ -107,16 +107,20 @@ public class MathUtils {
 				float x = 0, y = 0;
 				int codeOut = (code1 != 0) ? code1 : code2;
 
-				if ((codeOut & CLIP_TOP) != 0) {
+				if ((codeOut & CLIP_BOTTOM) != 0) {
+					if (Math.abs(y2 - y1) < 1e-6f) break;
 					x = x1 + (x2 - x1) * (maxY - y1) / (y2 - y1);
 					y = maxY;
-				} else if ((codeOut & CLIP_BOTTOM) != 0) {
+				} else if ((codeOut & CLIP_TOP) != 0) {
+					if (Math.abs(y2 - y1) < 1e-6f) break;
 					x = x1 + (x2 - x1) * (minY - y1) / (y2 - y1);
 					y = minY;
 				} else if ((codeOut & CLIP_RIGHT) != 0) {
+					if (Math.abs(x2 - x1) < 1e-6f) break;
 					y = y1 + (y2 - y1) * (maxX - x1) / (x2 - x1);
 					x = maxX;
 				} else if ((codeOut & CLIP_LEFT) != 0) {
+					if (Math.abs(x2 - x1) < 1e-6f) break;
 					y = y1 + (y2 - y1) * (minX - x1) / (x2 - x1);
 					x = minX;
 				}
@@ -133,7 +137,7 @@ public class MathUtils {
 			}
 		}
 
-		if (accept) {
+		if (accept && !Float.isNaN(x1) && !Float.isNaN(y1) && !Float.isNaN(x2) && !Float.isNaN(y2)) {
 			return new float[] { x1, y1, x2, y2 };
 		}
 		return null;

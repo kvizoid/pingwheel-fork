@@ -52,10 +52,10 @@ public class RelayClient implements WebSocket.Listener {
 		return thread;
 	});
 
-	private WebSocket webSocket;
-	private String userChannel = "";
-	private String lastSubscribedChannel = "";
-	private boolean active = false;
+	private volatile WebSocket webSocket;
+	private volatile String userChannel = "";
+	private volatile String lastSubscribedChannel = "";
+	private volatile boolean active = false;
 	private final StringBuilder messageBuffer = new StringBuilder();
 
 	private RelayClient() {}
@@ -248,17 +248,6 @@ public class RelayClient implements WebSocket.Listener {
 				}
 			}
 
-			var conn = Game.getConnection();
-			if (!sameServer && conn != null) {
-				if (conn.getPlayerInfo(author) != null) {
-					sameServer = true;
-				}
-			}
-
-			if (!sameServer) {
-				return;
-			}
-
 			double x = obj.get("x").getAsDouble();
 			double y = obj.get("y").getAsDouble();
 			double z = obj.get("z").getAsDouble();
@@ -271,10 +260,29 @@ public class RelayClient implements WebSocket.Listener {
 			int seq = obj.has("seq") ? obj.get("seq").getAsInt() : 0;
 			int dim = obj.has("dim") ? obj.get("dim").getAsInt() : 0;
 
-			var s2c = new PingLocationS2CPacket(userChannel, new Vec3(x, y, z), entity, seq, dim, author);
+			final boolean isPreVerified = sameServer;
+			final UUID finalAuthor = author;
+			final UUID finalEntity = entity;
+			final double fx = x;
+			final double fy = y;
+			final double fz = z;
+			final int fseq = seq;
+			final int fdim = dim;
 
 			if (Game != null) {
-				Game.execute(() -> CommonClient.INSTANCE.onPingLocationPacket(s2c));
+				Game.execute(() -> {
+					boolean allowed = isPreVerified;
+					if (!allowed) {
+						var conn = Game.getConnection();
+						if (conn != null && conn.getPlayerInfo(finalAuthor) != null) {
+							allowed = true;
+						}
+					}
+					if (allowed) {
+						var s2c = new PingLocationS2CPacket(userChannel, new Vec3(fx, fy, fz), finalEntity, fseq, fdim, finalAuthor);
+						CommonClient.INSTANCE.onPingLocationPacket(s2c);
+					}
+				});
 			}
 		} catch (Exception e) {
 			Global.LOGGER.warn("[PingWheel] Failed to parse relayed ping: " + e.getMessage());

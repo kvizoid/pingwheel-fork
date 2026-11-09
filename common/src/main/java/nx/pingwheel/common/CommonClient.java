@@ -55,12 +55,17 @@ public class CommonClient {
 		nx.pingwheel.common.network.RelayClient.INSTANCE.onLeave();
 	}
 
+	private int checkServerStateCooldown = 0;
+
 	public void onTickStart() {
 		Game = Minecraft.getInstance();
 		GameContext.updateDimension();
 
 		LegacyMigrationHandler.onTick();
-		nx.pingwheel.common.network.RelayClient.INSTANCE.checkServerState();
+		if (--checkServerStateCooldown <= 0) {
+			checkServerStateCooldown = 20;
+			nx.pingwheel.common.network.RelayClient.INSTANCE.checkServerState();
+		}
 
 		if (InputUtils.consumePingHotkey()) {
 			PingController.queuePingAction();
