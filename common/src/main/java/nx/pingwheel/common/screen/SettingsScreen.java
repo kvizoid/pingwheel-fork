@@ -194,6 +194,16 @@ public class SettingsScreen extends Screen {
 				}
 			).bounds(col2X, panelTop + 96, colWidth, 20).build();
 			addTabWidget(updateBtn);
+
+			var preLaunchBtn = Button.builder(
+				Component.literal("Автообновление на старте: " + (config.isPreLaunchUpdate() ? "Вкл" : "Выкл")),
+				btn -> {
+					config.setPreLaunchUpdate(!config.isPreLaunchUpdate());
+					ClientConfig.HANDLER.save();
+					btn.setMessage(Component.literal("Автообновление на старте: " + (config.isPreLaunchUpdate() ? "Вкл" : "Выкл")));
+				}
+			).bounds(col1X, panelTop + 122, 350, 20).build();
+			addTabWidget(preLaunchBtn);
 		}
 	}
 
@@ -266,6 +276,7 @@ public class SettingsScreen extends Screen {
 			ctx.text(this.font, Component.literal("• Умная окклюзия: скрывается за стенами и блоками"), cardX + 8, cardY + 50, 0xFF94A3B8, false);
 		} else if (currentTab == 3) {
 			ctx.text(this.font, Component.translatable("settings.pingwheel.channel").withStyle(ChatFormatting.GRAY), panelLeft + 15, panelTop + 54, 0xFFA0AAB8, false);
+			ctx.text(this.font, Component.literal("• Проверяет обновления до старта Minecraft").withStyle(ChatFormatting.DARK_GRAY), panelLeft + 15, panelTop + 148, 0xFF808A98, false);
 		}
 
 		super.extractRenderState(ctx, mouseX, mouseY, delta);

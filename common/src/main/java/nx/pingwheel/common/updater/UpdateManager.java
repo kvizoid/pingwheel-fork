@@ -228,6 +228,11 @@ public class UpdateManager {
 			}
 
 			if (replaced) {
+				if (currentJar.isFile() && !currentJar.getAbsolutePath().equals(targetFile.getAbsolutePath())) {
+					try {
+						currentJar.delete();
+					} catch (Exception ignored) {}
+				}
 				Global.LOGGER.info("[PingWheel] Successfully auto-updated to v" + versionName);
 				if (Game != null && Game.player != null) {
 					Game.player.sendOverlayMessage(
@@ -240,6 +245,71 @@ public class UpdateManager {
 			Global.LOGGER.error("[PingWheel] Failed to install update: " + e.getMessage());
 		}
 		return false;
+	}
+
+	public static void runPreLaunchCheck() {
+		try {
+			var noUpdateFile = new File("config/pingwheel-no-update.txt");
+			if (noUpdateFile.exists()) {
+				return;
+			}
+
+			JsonObject json = null;
+			for (String url : UPDATE_URLS) {
+				try {
+					var request = HttpRequest.newBuilder()
+						.uri(URI.create(url))
+						.timeout(Duration.ofMillis(2500))
+						.header("User-Agent", "PingWheel-AutoUpdater")
+						.header("Cache-Control", "no-cache")
+						.GET()
+						.build();
+
+					var response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+					if (response.statusCode() == 200) {
+						json = JsonParser.parseString(response.body()).getAsJsonObject();
+						break;
+					}
+				} catch (Exception ignored) {}
+			}
+
+			if (json == null) {
+				return;
+			}
+
+			int remoteBuild = json.get("build").getAsInt();
+			String remoteVersion = json.has("version") ? json.get("version").getAsString() : ("b" + remoteBuild);
+			String downloadUrl = json.get("url").getAsString();
+
+			boolean hasUpdate = isNewerVersion(remoteVersion, Global.MOD_VERSION);
+			if (!hasUpdate && !remoteVersion.equalsIgnoreCase(Global.MOD_VERSION)) {
+				if (remoteBuild > CURRENT_BUILD) {
+					hasUpdate = true;
+				}
+			}
+
+			if (!hasUpdate) {
+				return;
+			}
+
+			Global.LOGGER.info("[PingWheel] Found new version during preLaunch: v" + remoteVersion + " (installed: v" + Global.MOD_VERSION + ")");
+			Global.LOGGER.info("[PingWheel] Downloading update...");
+
+			boolean installed = downloadAndInstall(downloadUrl, remoteVersion, true);
+			if (installed) {
+				System.err.println("");
+				System.err.println("================================================================================");
+				System.err.println("[PingWheel] МОД АВТОМАТИЧЕСКИ ОБНОВЛЕН ДО v" + remoteVersion + "!");
+				System.err.println("[PingWheel] Файл мода в папке mods/ успешно заменен на актуальную версию.");
+				System.err.println("[PingWheel] Minecraft был завершен, чтобы новая версия вступила в силу.");
+				System.err.println("[PingWheel] Нажмите «Играть» еще раз в лаунчере для запуска игры с обновленным модом.");
+				System.err.println("================================================================================");
+				System.err.println("");
+				System.exit(0);
+			}
+		} catch (Throwable t) {
+			Global.LOGGER.warn("[PingWheel] PreLaunch update check error: " + t.getMessage());
+		}
 	}
 }
 

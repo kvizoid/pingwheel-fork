@@ -28,6 +28,7 @@ public class ClientConfig implements IConfig {
 	boolean coordinatesVisible = true;
 	boolean rulerVisible = true;
 	boolean mobRadiusVisible = true;
+	boolean preLaunchUpdate = true;
 	int detailDistance = 200;
 	int maxSimultaneousPings = 5;
 
@@ -86,6 +87,9 @@ public class ClientConfig implements IConfig {
 
 	public boolean isMobRadiusVisible() { return mobRadiusVisible; }
 	public void setMobRadiusVisible(boolean mobRadiusVisible) { this.mobRadiusVisible = mobRadiusVisible; }
+
+	public boolean isPreLaunchUpdate() { return preLaunchUpdate; }
+	public void setPreLaunchUpdate(boolean preLaunchUpdate) { this.preLaunchUpdate = preLaunchUpdate; }
 
 	public int getDetailDistance() { return detailDistance; }
 	public void setDetailDistance(int detailDistance) { this.detailDistance = detailDistance; }
