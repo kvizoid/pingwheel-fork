@@ -23,7 +23,7 @@ public class RelayClient implements WebSocket.Listener {
 
 	public static final RelayClient INSTANCE = new RelayClient();
 
-	private static final String DEFAULT_RELAY_URL = "ws://relay.bubuntu.tech:8899";
+	private static final String DEFAULT_RELAY_URL = "wss://bubuntu.tech/ping-relay";
 
 	public static String getRelayUrl() {
 		try {
@@ -31,13 +31,12 @@ public class RelayClient implements WebSocket.Listener {
 			var configFile = configDir.resolve("ping-relay.txt");
 			if (java.nio.file.Files.exists(configFile)) {
 				var url = java.nio.file.Files.readString(configFile).trim();
-				if (!url.isEmpty()) {
+				if (!url.isEmpty() && !url.contains(":8899") && !url.contains("192.168.0.15")) {
 					return url;
 				}
-			} else {
-				java.nio.file.Files.createDirectories(configDir);
-				java.nio.file.Files.writeString(configFile, DEFAULT_RELAY_URL + System.lineSeparator());
 			}
+			java.nio.file.Files.createDirectories(configDir);
+			java.nio.file.Files.writeString(configFile, DEFAULT_RELAY_URL + System.lineSeparator());
 		} catch (Throwable ignored) {}
 		return DEFAULT_RELAY_URL;
 	}
@@ -99,19 +98,18 @@ public class RelayClient implements WebSocket.Listener {
 
 	public static String getServerIdentifier() {
 		if (Game == null || Game.level == null) return null;
-		if (Game.hasSingleplayerServer()) return null;
 
 		var connection = Game.getConnection();
-		if (connection == null) return null;
-
-		try {
-			var netConn = connection.getConnection();
-			if (netConn != null && netConn.getRemoteAddress() instanceof java.net.InetSocketAddress isa) {
-				var addr = isa.getAddress();
-				String host = addr != null ? addr.getHostAddress() : isa.getHostString();
-				return host + ":" + isa.getPort();
-			}
-		} catch (Throwable ignored) {}
+		if (connection != null) {
+			try {
+				var netConn = connection.getConnection();
+				if (netConn != null && netConn.getRemoteAddress() instanceof java.net.InetSocketAddress isa) {
+					var addr = isa.getAddress();
+					String host = addr != null ? addr.getHostAddress() : isa.getHostString();
+					return (host + ":" + isa.getPort()).toLowerCase();
+				}
+			} catch (Throwable ignored) {}
+		}
 
 		try {
 			var serverData = Game.getCurrentServer();
@@ -120,15 +118,25 @@ public class RelayClient implements WebSocket.Listener {
 			}
 		} catch (Throwable ignored) {}
 
+		if (Game.hasSingleplayerServer()) {
+			return "local_world";
+		}
+
 		return null;
 	}
 
 	public String getEffectiveChannel() {
+		var clientConfig = nx.pingwheel.common.config.ClientConfig.HANDLER.getConfig();
+		String uCh = userChannel != null ? userChannel.trim() : "";
+		if (clientConfig.isCrossServerSync()) {
+			return "cross:" + uCh;
+		}
+
 		String serverId = getServerIdentifier();
 		if (serverId == null) {
-			return "__offline__";
+			return uCh.isEmpty() ? "__offline__" : ("channel:" + uCh);
 		}
-		return (userChannel != null ? userChannel : "") + "@" + serverId;
+		return uCh + "@" + serverId;
 	}
 
 	public synchronized void updateChannel(String channel) {
@@ -154,16 +162,20 @@ public class RelayClient implements WebSocket.Listener {
 	}
 
 	public void sendPing(PingLocationC2SPacket packet, UUID author) {
-		String serverId = getServerIdentifier();
-		if (serverId == null || webSocket == null || packet == null) {
+		if (webSocket == null || packet == null) {
 			return;
 		}
 
 		String effChannel = getEffectiveChannel();
+		if ("__offline__".equals(effChannel)) {
+			return;
+		}
+
+		String serverId = getServerIdentifier();
 		var json = new JsonObject();
 		json.addProperty("type", "ping");
 		json.addProperty("channel", effChannel);
-		json.addProperty("server", serverId);
+		json.addProperty("server", serverId != null ? serverId : "unknown");
 		json.addProperty("x", packet.pos().x);
 		json.addProperty("y", packet.pos().y);
 		json.addProperty("z", packet.pos().z);
@@ -217,23 +229,6 @@ public class RelayClient implements WebSocket.Listener {
 			if (!"ping".equals(type)) return;
 
 			String currentServer = getServerIdentifier();
-			if (currentServer == null) {
-				return;
-			}
-
-
-			UUID author = null;
-			if (obj.has("author") && !obj.get("author").isJsonNull()) {
-				author = UUID.fromString(obj.get("author").getAsString());
-			} else {
-				author = UUID.randomUUID();
-			}
-
-			if (Game.player != null && author.equals(Game.player.getUUID())) {
-				return;
-			}
-
-
 			boolean sameServer = false;
 			var clientConfig = nx.pingwheel.common.config.ClientConfig.HANDLER.getConfig();
 
@@ -243,9 +238,28 @@ public class RelayClient implements WebSocket.Listener {
 
 			if (!sameServer && obj.has("server")) {
 				String pingServer = obj.get("server").getAsString();
-				if (currentServer.equalsIgnoreCase(pingServer) || clientConfig.isServerAllowed(pingServer, currentServer)) {
+				if (currentServer != null && (currentServer.equalsIgnoreCase(pingServer) || clientConfig.isServerAllowed(pingServer, currentServer))) {
 					sameServer = true;
 				}
+			}
+
+			if (!sameServer && currentServer == null && !userChannel.trim().isEmpty()) {
+				sameServer = true;
+			}
+
+			if (!sameServer && currentServer == null && !clientConfig.isCrossServerSync()) {
+				return;
+			}
+
+			UUID author = null;
+			if (obj.has("author") && !obj.get("author").isJsonNull()) {
+				author = UUID.fromString(obj.get("author").getAsString());
+			} else {
+				author = UUID.randomUUID();
+			}
+
+			if (Game != null && Game.player != null && author.equals(Game.player.getUUID())) {
+				return;
 			}
 
 			double x = obj.get("x").getAsDouble();

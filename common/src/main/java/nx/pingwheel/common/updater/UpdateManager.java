@@ -23,7 +23,7 @@ import static nx.pingwheel.common.CommonClient.Game;
 public class UpdateManager {
 	private UpdateManager() {}
 
-	public static final int CURRENT_BUILD = 5;
+	public static final int CURRENT_BUILD = 6;
 	public static final String[] UPDATE_URLS = {
 		"https://raw.githubusercontent.com/kvizoid/pingwheel-fork/main/version.json",
 		"https://bubuntu.tech/pingwheel/version.json",
@@ -45,6 +45,36 @@ public class UpdateManager {
 
 	public static String getLatestVersionName() {
 		return latestVersionName;
+	}
+
+	public static boolean isNewerVersion(String remote, String current) {
+		if (remote == null || current == null) return false;
+		remote = remote.trim().replaceAll("^[vV]", "");
+		current = current.trim().replaceAll("^[vV]", "");
+		if (remote.equalsIgnoreCase(current) || current.equalsIgnoreCase("unknown")) {
+			return false;
+		}
+
+		String[] rParts = remote.split("[.-]");
+		String[] cParts = current.split("[.-]");
+		int maxLen = Math.max(rParts.length, cParts.length);
+		for (int i = 0; i < maxLen; i++) {
+			int rNum = 0;
+			int cNum = 0;
+			if (i < rParts.length) {
+				try {
+					rNum = Integer.parseInt(rParts[i].replaceAll("\\D", ""));
+				} catch (Exception ignored) {}
+			}
+			if (i < cParts.length) {
+				try {
+					cNum = Integer.parseInt(cParts[i].replaceAll("\\D", ""));
+				} catch (Exception ignored) {}
+			}
+			if (rNum > cNum) return true;
+			if (rNum < cNum) return false;
+		}
+		return false;
 	}
 
 	public static void checkOnStartup() {
@@ -95,13 +125,21 @@ public class UpdateManager {
 				String remoteVersion = json.has("version") ? json.get("version").getAsString() : ("b" + remoteBuild);
 				String downloadUrl = json.get("url").getAsString();
 
-				if (remoteBuild > CURRENT_BUILD) {
+				boolean hasUpdate = isNewerVersion(remoteVersion, Global.MOD_VERSION);
+				if (!hasUpdate && !remoteVersion.equalsIgnoreCase(Global.MOD_VERSION)) {
+					if (remoteBuild > CURRENT_BUILD) {
+						hasUpdate = true;
+					}
+				}
+
+				if (hasUpdate) {
 					updateAvailable = true;
 					latestVersionName = remoteVersion;
 
 					Global.LOGGER.info("[PingWheel] Found new update: v" + remoteVersion + " (build " + remoteBuild + ")");
 					return downloadAndInstall(downloadUrl, remoteVersion, silent);
 				} else {
+					updateAvailable = false;
 					if (!silent && Game != null && Game.player != null) {
 						Game.player.sendOverlayMessage(Component.translatable("update.pingwheel.up_to_date").withStyle(ChatFormatting.GREEN));
 					}
